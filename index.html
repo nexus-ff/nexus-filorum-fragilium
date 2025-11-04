@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nexus filorium fragilium</title>
+  <style>
+    /* === Grundlayout === */
+    body {
+      font-family: monospace;
+      background-color: #111;
+      color: #00ffcc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    /* === Eingabefeld + Button === */
+    input[type="password"], button {
+      margin-top: 15px;
+      padding: 8px 12px;
+      background-color: #000;
+      color: #00ffcc;
+      border: 1px solid #00ffcc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    /* === Fehlermeldung === */
+    #errorMessage {
+      color: #ff3366;
+      margin-top: 10px;
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+      font-size: 16px;
+    }
+
+    /* === Maschinenschreib-Effekt === */
+    #typed {
+      border-right: .1em solid #00ffcc;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 3s steps(30, end) forwards, blink 0.7s infinite;
+    }
+    @keyframes typing { from { width: 0 } to { width: 100% } }
+    @keyframes blink { 50% { border-color: transparent; } }
+
+    /* === Bildbereich === */
+    img {
+      margin-top: 25px;
+      width: 300px;
+      border: 2px solid #00ffcc;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s ease-in-out;
+    }
+    img:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- === Maschinenschreibtext === -->
+  <h1 id="typed">Введи пароль<br>их много, они сплитены и наравят порваться.<br>не рви их.</h1>
+
+  <!-- === Passwort-Eingabe === -->
+  <input id="passwordInput" type="password" placeholder="Введи пороль..." />
+  <button onclick="checkPassword()">Войти</button>
+
+  <!-- === NEU: Bereich für Fehlermeldung === -->
+  <div id="errorMessage"></div>
+
+  <!-- === Geschützter Inhalt === -->
+  <div id="content" style="display:none;">
+    <h2>не рви - а распутывай</h2>
+    <pre style="font-family: monospace;">
+<em>
+<strong>
+НИТИ
+</strong>
+
+Внезапное призрение
+- В голову бьют подозрения
+А что если всё обман? -
+нереальность и лож?
+Этот лапочка в своём
+подвале насмехаясь точит нож?
+
+Убить бы свою наивность!
+- поверила опять!
+Сколько раз самой себе же,
+вдабливая, повторять...
+Что нету справедливости -
+Некому полностью доверять!
+Так проверим же на лживость
+Самозванца опять!!
+
+Чёрными слезами
+Образуется огромная лужа.
+Я чёрная в нутри -
+И я чёрная снаружи!
+
+Пусти!
+Я обрываю <strong>нашу нить!</strong>
+Оставь! Уйди!
+Мне больно в тебя верить!
+</em>
+
+
+
+Привет.
+
+Начну с последней буквы кириллического алфавита.
+
+Я хочу рассказать тебе о своих чувствах не чтобы ты меня пожелала, не чтобы манипулировать тобой и не чтобы ты себя чувствовала плохо. - Я хочу, чтобы ты знала, на сколько ты для меня важна.
+
+Я очень скучаю по тебе и чувствую глубокую боль при мысли о том, что мы можем не увидится, или я даже не узнаю, как у тебя дела. Хоть я и способен выдержать эти чувства, и понимаю тебя - мне всё-же грустно и я действительно переживаю.
+Зная, как ты относишься к "жалости" и слабости - скажу, что мне не страшно показаться слабым и жалким. Я делюсь с тобой своими искренними чувствами - а это не может быть чем-то плохим.
+Я не сломаюсь. Но я очень хочу, чтобы ты продолжала быть частью моей жизни. Я только догадываюсь о мотивах твоего резкого обрыва контакта (надеюсь, что у тебя всё "хорошо") и пряниму любое твоё решение... Но очень хотел бы продолжить общение и услышать, каких отношений ты-бы желала. Давай обсудим с тобой, как это реализовать. У меня есть идеи...
+Если найдутся сили и желание, то пожалуйста напиши мне. Я очень жду.
+
+На сердце боль,
+взгляд смотрит в небо
+- ждёт ответа.
+Душа не верит
+в то, что нету
+- тебя уже нету.
+<em>(Трэшовенько и кичёвенько конечно ^^, но что поделать? xD такие вот умение ассоциации.)</em>
+    </pre>
+    <img id="mainImage" src="bild1.jpg" alt="Bild 1" />
+  </div>
+
+  <script>
+    /* === Passwortschutz === */
+    const correctPassword = "нити"; // <--- HIER DEIN PASSWORT EINFÜGEN
+
+    function checkPassword() {
+      const input = document.getElementById('passwordInput').value;
+      const errorBox = document.getElementById('errorMessage');
+
+      // Fehlermeldung jedes Mal ausblenden, bevor geprüft wird
+      errorBox.style.opacity = 0;
+
+      if (input === correctPassword) {
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('passwordInput').style.display = 'none';
+        document.querySelector('button').style.display = 'none';
+        errorBox.style.display = 'none'; // alte Fehlermeldung verstecken
+        sendVisitNotification();
+      } else {
+        // === Sichtbare Fehlermeldung anzeigen ===
+        errorBox.textContent = '❌ Неверный пароль<br>русскими, маленькими буквами, во множественным числе';
+        errorBox.style.opacity = 1;
+        document.getElementById('passwordInput').value = ''; // Eingabefeld leeren
+        document.getElementById('passwordInput').focus();    // Cursor wieder aktiv
+      }
+    }
+
+    /* === Bildwechsel bei Hover oder Klick === */
+    const img = document.getElementById('mainImage');
+    let toggled = false;
+
+    img.addEventListener('mouseenter', () => {
+      img.src = 'bild2.jpg'; // <--- HIER 2. BILD ANPASSEN
+    });
+
+    img.addEventListener('mouseleave', () => {
+      if (!toggled) img.src = 'bild1.jpg';
+    });
+
+    img.addEventListener('click', () => {
+      toggled = !toggled;
+      img.src = toggled ? 'bild2.jpg' : 'bild1.jpg';
+    });
+
+    /* === Benachrichtigung (Platzhalter – nur aktiv, wenn Backend vorhanden) === */
+    function sendVisitNotification() {
+      fetch('/api/notify', { method: 'POST' });
+    }
+  </script>
+</body>
+</html>
