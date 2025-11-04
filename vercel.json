@@ -1,0 +1,44 @@
+{
+  // 🔧 Allgemeine Projektkonfiguration
+  // ---------------------------------
+  // Diese Datei teilt Vercel mit:
+  // - welche Dateien statisch sind (Frontend)
+  // - welche Funktionen als API dienen (Backend)
+  // - welche URLs wohin weitergeleitet werden
+
+  "version": 2,
+
+  // 🌐 Weiterleitungen
+  // ---------------------------------
+  // Jede Anfrage an /api/notify wird automatisch
+  // an die Datei "api/notify.js" weitergeleitet.
+  "routes": [
+    { "src": "/api/notify", "dest": "/api/notify.js" }
+  ],
+
+  // ⚙️ Build-Einstellungen
+  // ---------------------------------
+  // Hier sagen wir Vercel:
+  // "Alles, was .html, .css, .js etc. ist → statisch bereitstellen"
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/notify.js",
+      "use": "@vercel/node"
+    }
+  ],
+
+  // 🔒 Sicherheit & Umgebungsvariablen (optional dokumentiert)
+  // ---------------------------------
+  // Diese Werte legst du *nicht* hier ab, sondern direkt auf vercel.com
+  // unter "Project Settings > Environment Variables".
+  // Beispiel:
+  // TELEGRAM_BOT_TOKEN = 123456789:ABCdefGhiJkLmnoPQRstuVWxyz
+  // TELEGRAM_CHAT_ID   = 987654321
+
+  // 📦 Optional: Clean URLs aktivieren (ohne .html-Endungen)
+  "cleanUrls": true
+}
