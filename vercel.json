@@ -1,17 +1,12 @@
 {
   "version": 2,
+
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "api/notify.js", "use": "@vercel/node" }
+  ],
+
   "routes": [
     { "src": "/api/notify", "dest": "/api/notify.js" }
-  ],
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/notify.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "cleanUrls": true
+  ]
 }
