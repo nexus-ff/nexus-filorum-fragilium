@@ -5,63 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>nexus filorium fragilium</title>
   <style>
-    /* === Grundlayout === */
-    body {
-      font-family: monospace;
-      background-color: #111;
-      color: #00ffcc;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
+  /* === Grundlayout === */
+  body {
+    font-family: monospace;
+    background-color: #fff;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 2rem;
+    text-align: center;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
 
-    /* === Eingabefeld + Button === */
-    input[type="password"], button {
-      margin-top: 15px;
-      padding: 8px 12px;
-      background-color: #000;
-      color: #00ffcc;
-      border: 1px solid #00ffcc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
+  h1, h2 {
+    max-width: 90%;
+    word-wrap: break-word;
+    white-space: normal;
+  }
 
-    /* === Fehlermeldung === */
-    #errorMessage {
-      color: #ff3366;
-      margin-top: 10px;
-      opacity: 0;
-      transition: opacity 0.4s ease-in-out;
-      font-size: 16px;
-    }
+  /* === Eingabefeld + Button === */
+  input[type="password"], button {
+    margin-top: 15px;
+    padding: 8px 12px;
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #000;
+    border-radius: 5px;
+    font-size: 16px;
+  }
 
-    /* === Maschinenschreib-Effekt === */
-    #typed {
-      border-right: .1em solid #00ffcc;
-      white-space: nowrap;
-      overflow: hidden;
-      width: 0;
-      animation: typing 3s steps(30, end) forwards, blink 0.7s infinite;
-    }
-    @keyframes typing { from { width: 0 } to { width: 100% } }
-    @keyframes blink { 50% { border-color: transparent; } }
+  input[type="password"]:focus {
+    outline: 2px solid #000;
+  }
 
-    /* === Bildbereich === */
-    img {
-      margin-top: 25px;
-      width: 300px;
-      border: 2px solid #00ffcc;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.3s ease-in-out;
-    }
-    img:hover {
-      transform: scale(1.05);
-    }
-  </style>
+  /* === Maschinenschreib-Effekt === */
+  #typed {
+    border-right: .1em solid #000;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    animation: typing 3s steps(30, end) forwards, blink 0.7s infinite;
+  }
+  @keyframes typing { from { width: 0 } to { width: 100% } }
+  @keyframes blink { 50% { border-color: transparent; } }
+
+  /* === Bildbereich === */
+  img {
+    margin-top: 25px;
+    width: 90%;
+    max-width: 300px;
+    border: 2px solid #000;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+  }
+  img:hover {
+    transform: scale(1.05);
+  }
+</style>
 </head>
 <body>
 
