@@ -229,16 +229,16 @@
     let toggled = false;
 
     img.addEventListener('mouseenter', () => {
-      img.src = 'bild2.jpg'; // <--- HIER 2. BILD ANPASSEN
+      img.src = 'image/IMG_20251029_213356_289.jpg'; // <--- HIER 2. BILD ANPASSEN
     });
 
     img.addEventListener('mouseleave', () => {
-      if (!toggled) img.src = 'bild1.jpg';
+      if (!toggled) img.src = 'image/IMG_8462.JPG';
     });
 
     img.addEventListener('click', () => {
       toggled = !toggled;
-      img.src = toggled ? 'bild2.jpg' : 'bild1.jpg';
+      img.src = toggled ? 'image/IMG_20251029_213356_289.jpg' : 'image/IMG_8462.JPG';
     });
 
     /* === Benachrichtigung (Platzhalter – nur aktiv, wenn Backend vorhanden) === */
