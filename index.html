@@ -52,7 +52,16 @@ input[type="password"], button {
   input[type="password"]:focus {
     outline: 2px solid #000;
   }
-
+    
+.letter {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  text-align: left;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-top: 20px;
+}
+    
   /* Schreibmaschinenstil für mehrere Zeilen */
 #typewriter {
   white-space: pre-wrap;
@@ -92,7 +101,7 @@ input[type="password"], button {
 <body>
 
   <!-- Mehrzeiliger Schreibmaschinenbereich -->
-  <div id="typewriter">
+  <div id="typewriter" style="display:flex; justify-content:center; width:100%;">
   <span id="typed-text"></span><span id="cursor">|</span>
   </div>
   
@@ -101,7 +110,7 @@ input[type="password"], button {
     "Их много,",
     "они сплитены",
     "и наравят порваться.",
-    "не рви их."
+    "Не рви их."
   ];
 
   const typedText = document.getElementById("typed-text");
@@ -152,8 +161,8 @@ input[type="password"], button {
 
   <!-- === Geschützter Inhalt === -->
   <div id="content" style="display:none;">
-    <h2>не рви - а распутывай</h2>
-    <pre style="font-family: monospace;">
+    <h2>Не рви - а распутывай</h2>
+    <div style="font-family: "letter">
 <em>
 <strong>
 НИТИ
@@ -206,8 +215,8 @@ input[type="password"], button {
 в то, что нету
 - тебя уже нету.
 <em>(Трэшовенько и кичёвенько конечно ^^, но что поделать? xD такие вот умение ассоциации.)</em>
-    </pre>
-    <img id="mainImage" src="bild1.jpg" alt="Bild 1" />
+    </div>
+    <img id="mainImage" src="image/IMG_8462.JPG" alt="Bild 1">
   </div>
 
   <script>
@@ -241,17 +250,16 @@ input[type="password"], button {
     let toggled = false;
 
     img.addEventListener('mouseenter', () => {
-      img.src = 'image/IMG_20251029_213356_289.jpg'; // <--- HIER 2. BILD ANPASSEN
-    });
-
-    img.addEventListener('mouseleave', () => {
-      if (!toggled) img.src = 'image/IMG_8462.JPG';
-    });
-
-    img.addEventListener('click', () => {
-      toggled = !toggled;
-      img.src = toggled ? 'image/IMG_20251029_213356_289.jpg' : 'image/IMG_8462.JPG';
-    });
+    img.addEventListener('mouseenter', () => {
+  img.src = 'image/IMG_20251029_213356_289.jpg';
+});
+img.addEventListener('mouseleave', () => {
+  if (!toggled) img.src = 'image/IMG_8462.JPG';
+});
+img.addEventListener('click', () => {
+  toggled = !toggled;
+  img.src = toggled ? 'image/IMG_20251029_213356_289.jpg' : 'image/IMG_8462.JPG';
+});
 
     /* === Benachrichtigung (Platzhalter – nur aktiv, wenn Backend vorhanden) === */
     function sendVisitNotification() {
