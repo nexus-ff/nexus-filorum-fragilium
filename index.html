@@ -43,17 +43,22 @@
     outline: 2px solid #000;
   }
 
-  /* === Maschinenschreib-Effekt === */
-  #typed {
-    border-right: .1em solid #000;
-    white-space: nowrap;
-    overflow: hidden;
-    width: 0;
-    animation: typing 3s steps(30, end) forwards, blink 0.7s infinite;
-  }
-  @keyframes typing { from { width: 0 } to { width: 100% } }
-  @keyframes blink { 50% { border-color: transparent; } }
+  /* Schreibmaschinenstil für mehrere Zeilen */
+#typewriter {
+  white-space: pre-wrap;
+  font-size: 1.2rem;
+  text-align: center;
+  border-right: 2px solid #000;
+  display: inline-block;
+  padding-right: 5px;
+  animation: blinkCursor 0.7s steps(1) infinite;
+  max-width: 90%;
+}
 
+@keyframes blinkCursor {
+  50% { border-color: transparent; }
+}
+    
   /* === Bildbereich === */
   img {
     margin-top: 25px;
@@ -72,7 +77,7 @@
 <body>
 
   <!-- === Maschinenschreibtext === -->
-  <h1 id="typed">Их много,<br>они сплитены и<br>наравят порваться.<br>...Не рви их.</h1>
+  <div id="typewriter">Их много,<br>они сплитены и<br>наравят порваться.<br>...Не рви их.</div>
 
   <!-- === Passwort-Eingabe === -->
   <input id="passwordInput" type="password" placeholder="Введи пороль..." />
