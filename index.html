@@ -48,15 +48,18 @@
   white-space: pre-wrap;
   font-size: 1.2rem;
   text-align: center;
-  border-right: 2px solid #000;
-  display: inline-block;
-  padding-right: 5px;
-  animation: blinkCursor 0.7s steps(1) infinite;
   max-width: 90%;
+  display: inline-block;
 }
 
-@keyframes blinkCursor {
-  50% { border-color: transparent; }
+#cursor {
+  display: inline-block;
+  color: #000; /* Cursorfarbe */
+  animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
 }
     
   /* === Bildbereich === */
@@ -77,7 +80,10 @@
 <body>
 
   <!-- Mehrzeiliger Schreibmaschinenbereich -->
-  <div id="typewriter"></div>
+  <div id="typewriter">
+  <span id="typed-text"></span><span id="cursor">|</span>
+  </div>
+  
   <script>
   const lines = [
     "Введи пароль",
@@ -87,30 +93,39 @@
     "не рви их."
   ];
 
+  const typedText = document.getElementById("typed-text");
+  const cursor = document.getElementById("cursor");
+
   let lineIndex = 0;
   let charIndex = 0;
-  const speed = 45; // Schreibgeschwindigkeit (ms pro Zeichen)
-  const pauseBetweenLines = 400; // Pause zwischen Zeilen (ms)
+
+  // Chaotische Tippgeschwindigkeit
+  function randomDelay() {
+    return Math.floor(Math.random() * 120) + 30; 
+    // Variation: 30–150ms pro Zeichen
+  }
 
   function typeWriter() {
-    const element = document.getElementById("typewriter");
+    if (lineIndex >= lines.length) return; // Fertig
 
-    if (lineIndex < lines.length) {
-      const currentLine = lines[lineIndex];
+    const currentLine = lines[lineIndex];
 
-      if (charIndex <= currentLine.length) {
-        element.textContent =
-          lines.slice(0, lineIndex).join("\n") +
-          (lineIndex > 0 ? "\n" : "") +
-          currentLine.slice(0, charIndex);
+    // Zeichen schreiben
+    if (charIndex < currentLine.length) {
+      typedText.textContent += currentLine[charIndex];
+      charIndex++;
 
-        charIndex++;
-        setTimeout(typeWriter, speed);
-      } else {
-        lineIndex++;
-        charIndex = 0;
-        setTimeout(typeWriter, pauseBetweenLines);
-      }
+      // Cursor bleibt am Ende der Zeile → NICHT über alle Zeilen
+      setTimeout(typeWriter, randomDelay());
+    } 
+    else {
+      // Zeile fertig --> neue Zeile beginnen
+      typedText.textContent += "\n";
+      lineIndex++;
+      charIndex = 0;
+
+      // kurze Pause vor der neuen Zeile
+      setTimeout(typeWriter, 400);
     }
   }
 
