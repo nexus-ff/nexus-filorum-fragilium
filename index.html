@@ -6,21 +6,31 @@
   <title>nexus filorium fragilium</title>
   <style>
   /* === Grundlayout === */
-  body {
-    font-family: "Courier New";
-    background-color: #fff;
-    color: #000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    padding: 20px;
-    margin: 0;
-    padding: 2rem;
-    box-sizing: border-box;
-    overflow-x: hidden;
-  }
+  /* Sauberes, responsives Layout */
+body {
+  font-family: "Courier New", "Lucida Console", monospace;
+  background-color: #fff;
+  color: #000;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+  max-width: 600px;       /* verhindert lange Zeilen */
+  margin-left: auto;
+  margin-right: auto;     /* zentriert alles */
+  overflow-x: hidden;     /* nie wieder horizontales Scrollen */
+  min-height: 100vh;
+}
+
+/* Passwortfeld */
+input[type="password"], button {
+  margin-top: 15px;
+  padding: 10px 12px;
+  background-color: #eee;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 5px;
+  font-size: 16px;
+}
 
   h1, h2 {
     max-width: 90%;
@@ -65,13 +75,13 @@
     
   /* === Bildbereich === */
   img {
-    margin-top: 25px;
-    width: 90%;
-    max-width: 300px;
-    border: 2px solid #000;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.3s ease-in-out;
+  margin-top: 20px;
+  width: 100%;            /* skaliert perfekt auf Handy */
+  max-width: 300px;
+  height: auto;
+  border: 2px solid #000;
+  border-radius: 10px;
+  cursor: pointer;
   }
   img:hover {
     transform: scale(1.05);
