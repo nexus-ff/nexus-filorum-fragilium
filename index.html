@@ -252,23 +252,289 @@ document.getElementById("passwordInput").addEventListener("keydown", e => {
 /* ===========================
    BILDER-WECHSEL
 =========================== */
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>nexus filorium fragilium</title>
+
+<style>
+:root {
+  --fg: #000;
+  --bg: #fff;
+  --mono: "Courier New", "Lucida Console", monospace;
+  --input-bg: #1a1a1a; 
+  --input-text: #ccc;
+}
+
+/* Grundlayout */
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Seite */
+.page-wrap {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* =========================
+   TYPEWRITER OBEN
+========================= */
+#typewriter {
+  white-space: pre-wrap;
+  text-align: center;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  margin-top: 20px;
+}
+
+#cursor {
+  display: inline-block;
+  width: 0.6rem;          /* Langer Cursor */
+  height: 1.2rem;         /* Höherer Cursor */
+  background: #000;        /* DICKER BLOCK */
+  margin-left: 4px;
+  animation: blink .6s infinite step-end;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* =========================
+   LOGINBEREICH – FIXIERT
+========================= */
+
+#loginBlock {
+  position: fixed;
+  top: 58%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+  width: 260px;
+}
+
+/* Dünner, langer Pfeil bis kurz vor das Eingabefeld */
+#arrow {
+  width: 1px;
+  height: 120px;
+  background: #000;
+  margin: 0 auto;
+  position: relative;
+  top: -10px; /* Pfeil sitzt höher */
+}
+
+#arrow::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 9px solid #000;
+}
+
+/* Eingabe + Button nebeneinander */
+#inputRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0px;
+}
+
+/* Passwortfeld */
+#passwordInput {
+  padding: 10px 12px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 2px solid #000;
+  border-radius: 6px;
+  font-size: 16px;
+  width: 165px;
+}
+#passwordInput::placeholder { color: #888; }
+
+/* Button rechts */
+#loginBtn {
+  padding: 10px 14px;
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Fehlermeldung */
+#errorMessage {
+  color: #b00020;
+  margin-top: 6px;
+  font-size: .95rem;
+  min-height: 1.3em;
+}
+
+/* =========================
+   INHALT
+========================= */
+#content {
+  display:none;
+  margin-top: 260px;
+  font-size: .95rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+img {
+  display: block;
+  margin: 20px auto 0;
+  width: 100%;
+  max-width: 320px;
+  border: 2px solid #000;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: .2s;
+}
+img:hover { transform: scale(1.03); }
+
+</style>
+</head>
+
+<body>
+
+<div class="page-wrap">
+
+  <!-- TYPEWRITER -->
+  <div id="typewriter">
+    <span id="typed-text"></span><span id="cursor"></span>
+  </div>
+
+  <!-- LOGINBLOCK (fixiert) -->
+  <div id="loginBlock">
+    <div id="arrow"></div>
+
+    <div id="inputRow">
+      <input id="passwordInput" type="password" placeholder="Введи пароль..." />
+      <button id="loginBtn">Войти</button>
+    </div>
+
+    <div id="errorMessage"></div>
+  </div>
+
+  <!-- GESCHÜTZTER INHALT -->
+  <div id="content">
+
+<h2>Не рви — а распутывай</h2>
+
+<em><strong>НИТИ</strong>
+
+… (DEIN TEXT)
+</em>
+
+<img id="mainImage" src="image/IMG_8462.JPG" alt="Bild 1">
+
+  </div>
+
+</div>
+
+<script>
+/* ===========================
+   MULTILINE TYPEWRITER
+=========================== */
+
+const lines = [
+  "Их много,",
+  "они сплетены",
+  "и норовят порваться.",
+  "Не рви их."
+];
+
+const typedText = document.getElementById("typed-text");
+let lineIndex = 0, charIndex = 0;
+
+function randomDelay() { return Math.floor(Math.random()*120)+40; }
+
+function typeWriter() {
+  if (lineIndex >= lines.length) return;
+
+  const line = lines[lineIndex];
+
+  if (charIndex < line.length) {
+    typedText.textContent += line[charIndex++];
+    setTimeout(typeWriter, randomDelay());
+  } else {
+    if (lineIndex < lines.length - 1) typedText.textContent += "\n";
+    lineIndex++;
+    charIndex = 0;
+    if (lineIndex < lines.length) setTimeout(typeWriter, 350);
+  }
+}
+typeWriter();
+
+/* ===========================
+   LOGIN
+=========================== */
+
+const correctPassword = "нити";
+const errorBox = document.getElementById("errorMessage");
+const loginBlock = document.getElementById("loginBlock");
+
+function showError(msg) { errorBox.innerHTML = msg; }
+
+function checkPassword() {
+  const input = document.getElementById("passwordInput").value.trim();
+
+  if (input === correctPassword) {
+    document.getElementById("content").style.display = "block";
+    loginBlock.style.display = "none";
+    showError("");
+    sendVisitNotification();
+  } else {
+    showError("❌ Неверный пароль<br>русскими маленькими буквами");
+    const inp = document.getElementById("passwordInput");
+    inp.value = "";
+    inp.focus();
+  }
+}
+
+document.getElementById("loginBtn").onclick = checkPassword;
+document.getElementById("passwordInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") checkPassword();
+});
+
+/* ===========================
+   BILDER-WECHSEL
+=========================== */
 const img = document.getElementById("mainImage");
 let toggled = false;
 
 img.addEventListener("mouseenter", () => {
   img.src = "image/IMG_20251029_213356_289.jpg";
 });
-
 img.addEventListener("mouseleave", () => {
   if (!toggled) img.src = "image/IMG_8462.JPG";
 });
-
 img.addEventListener("click", () => {
   toggled = !toggled;
   img.src = toggled
     ? "image/IMG_20251029_213356_289.jpg"
     : "image/IMG_8462.JPG";
 });
+
+/* ===========================
+   TELEGRAM + STANDORT
+=========================== */
+function sendVisitNotification() {
+  fetch("/api/notify", { method: "POST" });
+}
 </script>
 
 </body>
