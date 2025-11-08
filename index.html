@@ -14,7 +14,7 @@
   --input-text: #ccc;
 }
 
-/* Allgemeines Layout */
+/* Layout */
 body {
   background: var(--bg);
   color: var(--fg);
@@ -33,29 +33,34 @@ body {
 /* =========================
    TYPEWRITER
 ========================= */
-#typed-container {
+#typewriter {
   margin-top: 20px;
-  text-align: center;
-  white-space: pre-wrap;
-  line-height: 1.35;
+  text-align: left;
+  white-space: pre;
   font-size: 1.25rem;
+  line-height: 1.35;
   position: relative;
+  min-height: 7em; /* Reserviert Platz, damit Login nicht springt */
 }
 
-/* Cursor – absolut, nicht springend */
+.type-line {
+  display: block;
+  min-height: 1.35em;
+}
+
 #cursor {
-  position: absolute;
+  display: inline-block;
   width: 0.85rem;
   height: 1.25rem;
   background: #000;
   animation: blink .6s infinite step-end;
-  transform: translate(2px, 0);
+  vertical-align: bottom;
 }
 
 @keyframes blink { 50% { opacity: 0; } }
 
 /* =========================
-   LOGINBEREICH
+   LOGIN
 ========================= */
 #loginBlock {
   position: fixed;
@@ -72,13 +77,10 @@ body {
   background: #000;
   margin: 0 auto;
   position: relative;
-
   opacity: 0;
-  transform: translateY(-15px);
   transition: opacity .8s ease, transform .8s ease;
 }
 
-/* Pfeilspitze */
 #arrow::after {
   content: "";
   position: absolute;
@@ -90,7 +92,7 @@ body {
   border-top: 10px solid #000;
 }
 
-/* Eingabezeile */
+/* Loginform */
 #inputRow {
   display: flex;
   justify-content: center;
@@ -98,7 +100,6 @@ body {
   gap: 8px;
 }
 
-/* Passwortfeld */
 #passwordInput {
   padding: 10px 12px;
   background: var(--input-bg);
@@ -108,9 +109,8 @@ body {
   font-size: 16px;
   width: 170px;
 }
-#passwordInput::placeholder { color: #888; }
+#passwordInput::placeholder { color: #777; }
 
-/* Button */
 #loginBtn {
   padding: 10px 14px;
   font-size: 16px;
@@ -121,12 +121,10 @@ body {
   cursor: pointer;
 }
 
-/* Fehlermeldung */
 #errorMessage {
   color: #b00020;
   margin-top: 6px;
-  font-size: .95rem;
-  min-height: 1.3em;
+  min-height: 1.4em;
 }
 
 /* =========================
@@ -150,9 +148,7 @@ img {
   cursor: pointer;
   transition: 0.2s;
 }
-img:hover {
-  transform: scale(1.03);
-}
+img:hover { transform: scale(1.03); }
 
 </style>
 </head>
@@ -162,11 +158,9 @@ img:hover {
 <div class="page-wrap">
 
   <!-- TYPEWRITER -->
-  <div id="typed-container">
-    <span id="typed"></span><span id="cursor"></span>
-  </div>
+  <div id="typewriter"></div>
 
-  <!-- LOGINBLOCK FIXIERT -->
+  <!-- LOGINBLOCK -->
   <div id="loginBlock">
     <div id="arrow"></div>
 
@@ -185,35 +179,10 @@ img:hover {
 
 <em><strong>НИТИ</strong>
 
-Внезапное призрение
-- В голову бьют подозрения
-А что если всё обман? -
-нереальность и лож?
-Этот лапочка в своём
-подвале насмехаясь точит нож?
-
-Убить бы свою наивность!
-- поверила опять!
-Сколько раз самой себе же,
-вдабливая, повторять...
-Что нету справедливости -
-Некому полностью доверять!
-Так проверим же на лживость
-Самозванца опять!!
-
-Чёрными слезами
-Образуется огромная лужа.
-Я чёрная в нутри -
-И я чёрная снаружи!
-
-Пусти!
-Я обрываю <strong>нашу нить!</strong>
-Оставь! Уйди!
-Мне больно в тебя верить!
+Внезапное призрение …
 </em>
 
-
-<img id="mainImage" src="image/IMG_8462.JPG" alt="Bild 1">
+<img id="mainImage" src="image/IMG_8462.JPG">
 
   </div>
 
@@ -221,7 +190,7 @@ img:hover {
 
 <script>
 /* ===========================
-   MULTILINE TYPEWRITER
+   MULTILINE TYPEWRITER – stabil
 =========================== */
 
 const lines = [
@@ -231,70 +200,86 @@ const lines = [
   "Не рви их."
 ];
 
-const typed = document.getElementById("typed");
-const cursor = document.getElementById("cursor");
+const tw = document.getElementById("typewriter");
 const arrow = document.getElementById("arrow");
 
 let lineIndex = 0;
 let charIndex = 0;
+let currentLineDiv = null;
 
-/* Cursorhöhe dynamisch */
-function updateCursorPosition() {
-  const text = typed.innerText;
-  const linesCount = text.split("\n").length;
-  const lineHeight = parseFloat(getComputedStyle(typed).lineHeight);
-
-  cursor.style.top = (linesCount - 1) * lineHeight + "px";
+/* Schritt 1: Zeile erzeugen */
+function newLine() {
+  currentLineDiv = document.createElement("div");
+  currentLineDiv.className = "type-line";
+  tw.appendChild(currentLineDiv);
 }
 
-/* Pfeillänge berechnen */
-function updateArrowLength() {
-  const topBox = document.getElementById("typed-container").getBoundingClientRect();
-  const loginBox = document.getElementById("loginBlock").getBoundingClientRect();
-
-  const dist = loginBox.top - topBox.bottom - 12;
-  arrow.style.height = dist + "px";
+/* Schritt 2: Cursor anhängen */
+function attachCursor() {
+  const cur = document.createElement("span");
+  cur.id = "cursor";
+  currentLineDiv.appendChild(cur);
 }
 
-/* TYPEWRITER */
+/* Schreibprozess */
 function randomDelay() {
   return Math.random() * 100 + 20;
 }
 
 function typeWriter() {
+
   if (lineIndex >= lines.length) {
-    revealArrow();
+    showArrow();
     return;
   }
 
+  if (!currentLineDiv) {
+    newLine();
+    attachCursor();
+  }
+
+  const cursor = currentLineDiv.querySelector("#cursor");
   const line = lines[lineIndex];
 
   if (charIndex < line.length) {
-    typed.textContent += line[charIndex++];
-    updateCursorPosition();
+    cursor.remove();
+    currentLineDiv.textContent += line[charIndex++];
+    currentLineDiv.appendChild(cursor);
     setTimeout(typeWriter, randomDelay());
   } else {
-    if (lineIndex < lines.length - 1) {
-      typed.textContent += "\n";
-    }
+    cursor.remove();
+    currentLineDiv.textContent += "";
     lineIndex++;
     charIndex = 0;
-    updateCursorPosition();
+    newLine();
+    attachCursor();
     setTimeout(typeWriter, 350);
   }
 }
 
 typeWriter();
 
-/* Pfeil sichtbar machen */
-function revealArrow() {
-  updateArrowLength();
-  arrow.style.opacity = 1;
-  arrow.style.transform = "translateY(0)";
+/* ===========================
+   PFEIL
+=========================== */
+
+function updateArrow() {
+  const twBox = tw.getBoundingClientRect();
+  const loginBox = document.getElementById("loginBlock").getBoundingClientRect();
+
+  const dist = loginBox.top - twBox.bottom - 15;
+  arrow.style.height = dist + "px";
 }
 
-/* Dynamisch bei Änderung */
-window.addEventListener("resize", updateArrowLength);
+function showArrow() {
+  requestAnimationFrame(() => {
+    updateArrow();
+    arrow.style.opacity = 1;
+    arrow.style.transform = "translateY(0)";
+  });
+}
+
+window.addEventListener("resize", updateArrow);
 
 /* ===========================
    LOGIN
