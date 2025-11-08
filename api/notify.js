@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const city = req.headers["x-vercel-ip-city"] || "unbekannte Stadt";
 
     const message =
-`🔔 Neue Anmeldung
+`🌀 Is It Her?
 🕓 ${time}
 🌍 Standort: ${country}, ${city}
 💻 Browser: ${ua}`;
