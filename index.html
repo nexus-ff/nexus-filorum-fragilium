@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="ru">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,7 +14,7 @@
   --input-text: #ccc;
 }
 
-/* Grundlayout */
+/* Allgemeines Layout */
 body {
   background: var(--bg);
   color: var(--fg);
@@ -39,23 +39,23 @@ body {
   white-space: pre-wrap;
   line-height: 1.35;
   font-size: 1.25rem;
+  position: relative;
 }
 
-/* DICKER, REALISTISCHER CURSOR */
+/* Cursor – absolut, nicht springend */
 #cursor {
-  display: inline-block;
-  width: 0.8rem;
+  position: absolute;
+  width: 0.85rem;
   height: 1.25rem;
   background: #000;
-  vertical-align: baseline; /* hebt ihn an die richtige Höhe */
-  margin-left: 3px;
   animation: blink .6s infinite step-end;
+  transform: translate(2px, 0);
 }
 
 @keyframes blink { 50% { opacity: 0; } }
 
 /* =========================
-   LOGINBLOCK
+   LOGINBEREICH
 ========================= */
 #loginBlock {
   position: fixed;
@@ -66,10 +66,9 @@ body {
   z-index: 20;
 }
 
-/* Pfeil (unsichtbar am Anfang) */
+/* Pfeil */
 #arrow {
-  width: 0.7px;               /* sehr dünn */
-  height: calc(10vh);         /* dynamische Höhe */
+  width: 0.7px;
   background: #000;
   margin: 0 auto;
   position: relative;
@@ -79,6 +78,7 @@ body {
   transition: opacity .8s ease, transform .8s ease;
 }
 
+/* Pfeilspitze */
 #arrow::after {
   content: "";
   position: absolute;
@@ -137,6 +137,7 @@ body {
   margin-top: 260px;
   white-space: pre-wrap;
   line-height: 1.45;
+  font-size: 1.05rem;
 }
 
 img {
@@ -184,8 +185,33 @@ img:hover {
 
 <em><strong>НИТИ</strong>
 
-… (DEIN TEXT)
+Внезапное призрение
+- В голову бьют подозрения
+А что если всё обман? -
+нереальность и лож?
+Этот лапочка в своём
+подвале насмехаясь точит нож?
+
+Убить бы свою наивность!
+- поверила опять!
+Сколько раз самой себе же,
+вдабливая, повторять...
+Что нету справедливости -
+Некому полностью доверять!
+Так проверим же на лживость
+Самозванца опять!!
+
+Чёрными слезами
+Образуется огромная лужа.
+Я чёрная в нутри -
+И я чёрная снаружи!
+
+Пусти!
+Я обрываю <strong>нашу нить!</strong>
+Оставь! Уйди!
+Мне больно в тебя верить!
 </em>
+
 
 <img id="mainImage" src="image/IMG_8462.JPG" alt="Bild 1">
 
@@ -206,38 +232,69 @@ const lines = [
 ];
 
 const typed = document.getElementById("typed");
+const cursor = document.getElementById("cursor");
 const arrow = document.getElementById("arrow");
 
 let lineIndex = 0;
 let charIndex = 0;
 
+/* Cursorhöhe dynamisch */
+function updateCursorPosition() {
+  const text = typed.innerText;
+  const linesCount = text.split("\n").length;
+  const lineHeight = parseFloat(getComputedStyle(typed).lineHeight);
+
+  cursor.style.top = (linesCount - 1) * lineHeight + "px";
+}
+
+/* Pfeillänge berechnen */
+function updateArrowLength() {
+  const topBox = document.getElementById("typed-container").getBoundingClientRect();
+  const loginBox = document.getElementById("loginBlock").getBoundingClientRect();
+
+  const dist = loginBox.top - topBox.bottom - 12;
+  arrow.style.height = dist + "px";
+}
+
+/* TYPEWRITER */
 function randomDelay() {
   return Math.random() * 100 + 20;
 }
 
 function typeWriter() {
-  if (lineIndex >= lines.length) return revealArrow();  // <<< Pfeil erst dann!
+  if (lineIndex >= lines.length) {
+    revealArrow();
+    return;
+  }
 
   const line = lines[lineIndex];
 
   if (charIndex < line.length) {
     typed.textContent += line[charIndex++];
+    updateCursorPosition();
     setTimeout(typeWriter, randomDelay());
   } else {
-    typed.textContent += "\n";
-    charIndex = 0;
+    if (lineIndex < lines.length - 1) {
+      typed.textContent += "\n";
+    }
     lineIndex++;
+    charIndex = 0;
+    updateCursorPosition();
     setTimeout(typeWriter, 350);
   }
 }
 
 typeWriter();
 
-/* Pfeil erscheint dynamisch nach Typewriter */
+/* Pfeil sichtbar machen */
 function revealArrow() {
+  updateArrowLength();
   arrow.style.opacity = 1;
   arrow.style.transform = "translateY(0)";
 }
+
+/* Dynamisch bei Änderung */
+window.addEventListener("resize", updateArrowLength);
 
 /* ===========================
    LOGIN
