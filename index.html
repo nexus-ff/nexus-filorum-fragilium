@@ -37,28 +37,26 @@ body {
   margin-top: 20px;
   text-align: center;
   white-space: pre-wrap;
-  line-height: 1.4;
-  font-size: 1.2rem;
+  line-height: 1.35;
+  font-size: 1.25rem;
 }
 
+/* DICKER, REALISTISCHER CURSOR */
 #cursor {
   display: inline-block;
-  width: 0.7rem;       /* dicker Cursor */
-  height: 1.2rem;
+  width: 0.8rem;
+  height: 1.25rem;
   background: #000;
-  vertical-align: bottom;
-  margin-left: 4px;
+  vertical-align: baseline; /* hebt ihn an die richtige Höhe */
+  margin-left: 3px;
   animation: blink .6s infinite step-end;
 }
 
-@keyframes blink {
-  50% { opacity: 0; }
-}
+@keyframes blink { 50% { opacity: 0; } }
 
 /* =========================
    LOGINBLOCK
 ========================= */
-
 #loginBlock {
   position: fixed;
   top: 58%;
@@ -68,28 +66,31 @@ body {
   z-index: 20;
 }
 
-/* Pfeil VOR dem Eingabefeld */
+/* Pfeil (unsichtbar am Anfang) */
 #arrow {
-  width: 1px;
-  height: 110px;
+  width: 0.7px;               /* sehr dünn */
+  height: calc(10vh);         /* dynamische Höhe */
   background: #000;
   margin: 0 auto;
   position: relative;
-  top: -10px;
+
+  opacity: 0;
+  transform: translateY(-15px);
+  transition: opacity .8s ease, transform .8s ease;
 }
 
 #arrow::after {
   content: "";
   position: absolute;
-  bottom: -9px;
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 9px solid #000;
+  border-top: 10px solid #000;
 }
 
-/* Eingabe und Button nebeneinander */
+/* Eingabezeile */
 #inputRow {
   display: flex;
   justify-content: center;
@@ -107,10 +108,7 @@ body {
   font-size: 16px;
   width: 170px;
 }
-
-#passwordInput::placeholder {
-  color: #888;
-}
+#passwordInput::placeholder { color: #888; }
 
 /* Button */
 #loginBtn {
@@ -135,7 +133,7 @@ body {
    CONTENT
 ========================= */
 #content {
-  display: none;
+  display:none;
   margin-top: 260px;
   white-space: pre-wrap;
   line-height: 1.45;
@@ -151,7 +149,6 @@ img {
   cursor: pointer;
   transition: 0.2s;
 }
-
 img:hover {
   transform: scale(1.03);
 }
@@ -168,7 +165,7 @@ img:hover {
     <span id="typed"></span><span id="cursor"></span>
   </div>
 
-  <!-- LOGIN BLOCK -->
+  <!-- LOGINBLOCK FIXIERT -->
   <div id="loginBlock">
     <div id="arrow"></div>
 
@@ -198,7 +195,7 @@ img:hover {
 
 <script>
 /* ===========================
-   FUNCTIONING TYPEWRITER
+   MULTILINE TYPEWRITER
 =========================== */
 
 const lines = [
@@ -209,14 +206,17 @@ const lines = [
 ];
 
 const typed = document.getElementById("typed");
+const arrow = document.getElementById("arrow");
 
 let lineIndex = 0;
 let charIndex = 0;
 
-function randomDelay() { return Math.random()*100 + 20; }
+function randomDelay() {
+  return Math.random() * 100 + 20;
+}
 
 function typeWriter() {
-  if (lineIndex >= lines.length) return;
+  if (lineIndex >= lines.length) return revealArrow();  // <<< Pfeil erst dann!
 
   const line = lines[lineIndex];
 
@@ -224,14 +224,20 @@ function typeWriter() {
     typed.textContent += line[charIndex++];
     setTimeout(typeWriter, randomDelay());
   } else {
-    if (lineIndex < lines.length - 1) typed.textContent += "\n";
+    typed.textContent += "\n";
     charIndex = 0;
     lineIndex++;
-    setTimeout(typeWriter, 300);
+    setTimeout(typeWriter, 350);
   }
 }
 
 typeWriter();
+
+/* Pfeil erscheint dynamisch nach Typewriter */
+function revealArrow() {
+  arrow.style.opacity = 1;
+  arrow.style.transform = "translateY(0)";
+}
 
 /* ===========================
    LOGIN
@@ -267,11 +273,9 @@ let toggled = false;
 img.addEventListener("mouseenter", () => {
   img.src = "image/IMG_20251029_213356_289.jpg";
 });
-
 img.addEventListener("mouseleave", () => {
   if (!toggled) img.src = "image/IMG_8462.JPG";
 });
-
 img.addEventListener("click", () => {
   toggled = !toggled;
   img.src = toggled
