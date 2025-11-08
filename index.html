@@ -1,164 +1,176 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>nexus filorium fragilium</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>nexus filorium fragilium</title>
 
-  <style>
-    :root {
-      --fg: #000;
-      --bg: #fff;
-      --accent: #000;
-      --mono: "Courier New", "Lucida Console", ui-monospace, monospace;
+<style>
+:root {
+  --fg: #000;
+  --bg: #fff;
+  --mono: "Courier New", "Lucida Console", monospace;
+  --input-bg: #1a1a1a; 
+  --input-text: #ccc;
+}
 
-      --input-bg: #1a1a1a;      /* sehr dunkles Grau */
-      --input-text: #cccccc;    /* hellgrau */
-    }
+/* Grundlayout */
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 
-    html, body { height:100%; margin:0; padding:0; }
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: var(--mono);
-      overflow-x: hidden;
-    }
+/* Container */
+.page-wrap {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-    .container {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      min-height: 100dvh;
-      box-sizing: border-box;
-    }
+/* =========================
+   TYPEWRITER OBEN
+========================= */
+#typewriter {
+  white-space: pre-wrap;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  margin-top: 20px;
+}
 
-    /* ===== Typewriter ===== */
-    #typewriter {
-      white-space: pre-wrap;
-      text-align: center;
-      font-size: 1.1rem;
-      line-height: 1.4;
-      max-width: 100%;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-    }
+#cursor {
+  display: inline-block;
+  animation: blink .7s infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
 
-    #cursor {
-      display: inline-block;
-      animation: blink .7s step-end infinite;
-    }
-    @keyframes blink { 50% { opacity:0; } }
+/* =========================
+   LOGINBEREICH – FIXIERT
+========================= */
 
-    /* ===== Pfeil ===== */
-    #arrow {
-      width: 2px;
-      background: #000;
-      height: 160px;
-      margin-top: 10px;
-      position: relative;
-    }
-    #arrow::after {
-      content: "";
-      position: absolute;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 10px solid #000;
-    }
+#loginBlock {
+  position: fixed;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+}
 
-    /* ===== Login-Bereich ===== */
-    .controls {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding-top: 20px;
-    }
+#inputRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
 
-    input[type="password"] {
-      padding: 10px 12px;
-      background: var(--input-bg);
-      color: var(--input-text);
-      border: 2px solid #000;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-    input::placeholder {
-      color: #888;
-    }
-    input:focus {
-      outline: 2px solid #000;
-    }
+/* Passwortfeld */
+#passwordInput {
+  padding: 10px 12px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 2px solid #000;
+  border-radius: 6px;
+  font-size: 16px;
+  width: 180px;
+}
+#passwordInput::placeholder {
+  color: #888;
+}
 
-    button {
-      padding: 10px 12px;
-      background: #000;
-      color: #fff;
-      border: 2px solid #000;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
+/* Button rechts daneben */
+#loginBtn {
+  padding: 10px 14px;
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
 
-    /* Fehlermeldung */
-    #errorMessage {
-      color: #b00020;
-      height: 1.4em;
-      text-align:center;
-      font-size:.95rem;
-    }
+/* Fehlermeldung */
+#errorMessage {
+  color: #b00020;
+  height: 1.4em;
+  margin-top: 6px;
+  font-size: .95rem;
+}
 
-    /* ===== Geschützter Inhalt ===== */
-    #content {
-      display:none;
-      font-size: .95rem;
-      line-height: 1.45;
-      white-space: pre-wrap;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      padding-top: 20px;
-    }
+/* Dünner Pfeil */
+#arrow {
+  width: 1px;
+  height: 160px;
+  background: #000;
+  margin: 0 auto;
+  position: relative;
+  top: 20px;
+}
+#arrow::after {
+  content: "";
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid #000;
+}
 
-    img {
-      display: block;
-      margin: 16px auto 0;
-      width: 100%;
-      max-width: 320px;
-      border: 2px solid #000;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: .2s;
-    }
-    img:hover { transform: scale(1.03); }
-  </style>
+/* =========================
+   INHALT
+========================= */
+
+#content {
+  display: none;
+  margin-top: 250px; /* Platz für Loginblock */
+  font-size: .95rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+img {
+  display: block;
+  margin: 20px auto 0;
+  width: 100%;
+  max-width: 320px;
+  border: 2px solid #000;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: .2s;
+}
+img:hover { transform: scale(1.03); }
+
+</style>
 </head>
 
 <body>
-  <div class="container">
 
-    <!-- TYPEWRITER -->
-    <div id="typewriter">
-      <span id="typed-text"></span><span id="cursor">|</span>
-    </div>
+<div class="page-wrap">
 
-    <!-- PFEIL (bis Login erfolgreich) -->
+  <!-- TYPEWRITER -->
+  <div id="typewriter">
+    <span id="typed-text"></span><span id="cursor">|</span>
+  </div>
+
+  <!-- LOGINBLOCK FIXIERT -->
+  <div id="loginBlock">
     <div id="arrow"></div>
 
-    <!-- LOGIN -->
-    <div class="controls" id="loginControls">
+    <div id="inputRow">
       <input id="passwordInput" type="password" placeholder="Введи пароль..." />
       <button id="loginBtn">Войти</button>
-      <div id="errorMessage"></div>
     </div>
 
-    <!-- INHALT -->
-    <div id="content">
+    <div id="errorMessage"></div>
+  </div>
+
+  <!-- GESCHÜTZTER INHALT -->
+  <div id="content">
 
 <h2>Не рви — а распутывай</h2>
 
@@ -169,8 +181,9 @@
 
 <img id="mainImage" src="image/IMG_8462.JPG" alt="Bild 1">
 
-    </div>
   </div>
+
+</div>
 
 <script>
 /* ===========================
@@ -185,7 +198,6 @@ const lines = [
 ];
 
 const typedText = document.getElementById("typed-text");
-const cursor = document.getElementById("cursor");
 let lineIndex = 0, charIndex = 0;
 
 function randomDelay() { return Math.floor(Math.random()*120)+40; }
@@ -200,35 +212,32 @@ function typeWriter() {
     setTimeout(typeWriter, randomDelay());
   } else {
     if (lineIndex < lines.length - 1) typedText.textContent += "\n";
-    lineIndex++; charIndex = 0;
+    lineIndex++;
+    charIndex = 0;
     if (lineIndex < lines.length) setTimeout(typeWriter, 350);
   }
 }
-
 typeWriter();
 
 /* ===========================
-   LOGIN / PASSWORT
+   LOGIN
 =========================== */
 
 const correctPassword = "нити";
 const errorBox = document.getElementById("errorMessage");
-
-function showError(msg) {
-  errorBox.innerHTML = msg;
-}
+const loginBlock = document.getElementById("loginBlock");
+const arrow = document.getElementById("arrow");
 
 function checkPassword() {
   const input = document.getElementById("passwordInput").value.trim();
+
   if (input === correctPassword) {
     document.getElementById("content").style.display = "block";
-    document.getElementById("loginControls").style.display = "none";
-    document.getElementById("arrow").style.display = "none"; // Pfeil weg
-    showError("");
-
-    sendVisitNotification();
+    loginBlock.style.display = "none";
+    arrow.style.display = "none";
+    fetch("/api/notify", { method: "POST" });
   } else {
-    showError("❌ Неверный пароль<br>русскими, маленькими буквами");
+    errorBox.innerHTML = "❌ Неверный пароль<br>русскими, маленькими буквами";
     const inp = document.getElementById("passwordInput");
     inp.value = "";
     inp.focus();
@@ -243,7 +252,6 @@ document.getElementById("passwordInput").addEventListener("keydown", e => {
 /* ===========================
    BILDER-WECHSEL
 =========================== */
-
 const img = document.getElementById("mainImage");
 let toggled = false;
 
@@ -261,13 +269,6 @@ img.addEventListener("click", () => {
     ? "image/IMG_20251029_213356_289.jpg"
     : "image/IMG_8462.JPG";
 });
-
-/* ===========================
-   TELEGRAM-NOTIFY
-=========================== */
-function sendVisitNotification() {
-  fetch("/api/notify", { method: "POST" });
-}
 </script>
 
 </body>
