@@ -1,482 +1,366 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>nexus filorium fragilium</title>
-  <style>
-    /* ====== Grundlayout (mobilfreundlich, keine Horizontal-Scrolls) ====== */
-    :root{
-      /* ---- Stellschrauben ---- */
-      --type-base-delay: 80ms;     /* Grundtempo pro Zeichen (größer = langsamer) */
-      --type-jitter: 160ms;        /* Zufällige Zusatzwartezeit (chaotischer Tippflow) */
-      --line-pause: 320ms;         /* Pause zwischen Zeilen */
-      --cursor-width: 0.7ch;       /* Breite des Block-Cursors */
-      --cursor-height: 1.15em;     /* Höhe des Cursors (≈ Großbuchstabe) */
-      --cursor-blink: 0.65s;       /* Blinktempo */
-      --line-offcenter: 0.25ch;    /* Versatz je Zeile für "leicht offcenter" Look */
-      --arrow-stroke: 1.0px;       /* Pfeillinienstärke (kleiner = dünner) */
-      --arrow-gap: 10px;           /* Abstand der Pfeilspitze zum Eingabefeld */
-      --arrow-reveal: 1100ms;      /* Dauer des "zeichnen von oben nach unten" */
-      --arrow-fade: 700ms;         /* Opazitäts-Blend beim Einblenden */
-      --auth-top: 55vh;            /* Vertikale Position des Login-Feldes */
-      --page-max: 650px;           /* maximale Seitenbreite */
-      --page-pad: 20px;            /* Seitenrand innen */
-      --mono: "Courier New","Lucida Console",monospace;
-    }
 
-    *{ box-sizing: border-box; }
+<style>
 
-    body{
-      margin:0;
-      font-family: var(--mono);
-      background:#fff;
-      color:#000;
-      min-height:100vh;
-      display:block;
-      overflow-x:hidden;
-    }
+/* ===============================
+   GRUNDLAYOUT
+================================ */
+body {
+  background: #fff;
+  color: #000;
+  font-family: "Courier New", monospace;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    .page{
-      max-width: var(--page-max);
-      padding: var(--page-pad);
-      margin: 0 auto;
-      position: relative;
-    }
+/* Container hält ALLES mittig */
+#page-wrap {
+  width: 100%;
+  max-width: 600px;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
 
-    /* ====== Typewriter-Bereich oben ====== */
-    .typewrap{
-      width:100%;
-      display:flex;
-      justify-content:center;     /* Gesamtblock mittig */
-      margin-top: clamp(18px, 6vh, 48px);
-    }
+/* ===============================
+   TYPEWRITER-BLOCK
+================================ */
+#typewriter {
+  white-space: pre;
+  font-size: 1.3rem;
+  line-height: 1.5;
+  display: inline-block;
+  margin-top: 40px;
+}
 
-    #typewriter{
-      /* block mit weichem Zeilenumbruch */
-      white-space: pre-wrap;
-      line-height: 1.25;
-      font-size: 1.1rem;
-      max-width: 95%;
-      text-align: center;         /* global mittig */
-      position: relative;
-    }
+/* Cursorblock (█) */
+#cursor {
+  display: inline-block;
+  width: 1ch;
+  background: #000;
+  animation: blink 0.7s steps(1) infinite;
+  vertical-align: bottom;
+}
 
-    /* Für den leicht "offcenter" Look wird jede Zeile einzeln um wenige Pixel versetzt */
-    .tw-line{
-      display:block;
-      transform: translateX(var(--offset, 0));
-    }
+@keyframes blink {
+  50% { opacity: 0; }
+}
 
-    /* Block-Cursor: hoch & dick */
-    #cursor{
-      display:inline-block;
-      width: var(--cursor-width);
-      height: var(--cursor-height);
-      background:#000;
-      margin-left: 2px;
-      vertical-align: -0.15em;   /* feinjustiert, damit er Buchstabenhöhe abdeckt */
-      animation: blink var(--cursor-blink) steps(1) infinite;
-    }
-    @keyframes blink { 50%{ opacity:0; } }
+/* ===============================
+   EINGABEFELD
+================================ */
 
-    /* ====== Loginpanel fixiert (wandert nicht) ====== */
-    .auth{
-      position: fixed;
-      left: 50%;
-      top: var(--auth-top); /* Stellschraube: Höhe des Login-Feldes */
-      transform: translate(-50%, -50%);
-      z-index: 10; /* über dem Pfeil */
-      width: min(92vw, 520px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      pointer-events: auto;
-    }
+#login-area {
+  margin-top: 40px;
+  position: relative;
+}
 
-    .auth input[type="password"]{
-      flex: 1 1 auto;
-      min-width: 0;
-      padding: 12px 14px;
-      border: 1px solid #000;         /* schwarzer Rahmen */
-      background: #222;                /* sehr dunkles Grau */
-      color: #ccc;                     /* eingegebener Text hellgrau */
-      border-radius: 8px;
-      font-size: 16px;
-      font-family: var(--mono);
-      outline: none;
-    }
-    .auth input::placeholder{ color:#bbb; } /* Platzhalter hellgrau */
+input[type="password"] {
+  background: #222;        /* dunkelgrau */
+  color: #ddd;             /* Schrift */
+  border: 2px solid #000;  /* schwarzer Rand */
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  width: 180px;
+  text-align: center;
+}
 
-    .auth button{
-      padding: 12px 14px;
-      border: 1px solid #000;
-      background: #000;
-      color:#fff;
-      border-radius: 8px;
-      font-size: 16px;
-      font-family: var(--mono);
-      cursor: pointer;
-    }
+input[type="password"]::placeholder {
+  color: #bbb;             /* passende Farbe */
+}
 
-    #errorMessage{
-      position: fixed;
-      left: 50%;
-      top: calc(var(--auth-top) + 48px);
-      transform: translateX(-50%);
-      max-width: min(92vw, 520px);
-      text-align: center;
-      color: #b00020;
-      font-size: 0.95rem;
-      opacity: 0;
-      transition: opacity .25s ease;
-      z-index: 10;
-      pointer-events: none;
-    }
+button {
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 6px;
+  margin-left: 5px;
+  cursor: pointer;
+}
 
-    /* ====== Pfeil (SVG) – erscheint erst nach Tippen ====== */
-    .arrow-layer{
-      position: fixed;
-      inset: 0;              /* deckt Viewport ab */
-      pointer-events: none;  /* keine Interaktion */
-      z-index: 5;            /* unter dem Loginpanel */
-      opacity: 0;            /* startet unsichtbar */
-      transition: opacity var(--arrow-fade) ease;
-    }
-    .arrow{
-      stroke: #000;
-      stroke-width: var(--arrow-stroke);
-      fill: none;
-      marker-end: url(#arrowhead);
-      stroke-linecap: round;
-      stroke-linejoin: round;
+/* ===============================
+   FEHLERMELDUNG
+================================ */
+#errorMessage {
+  margin-top: 15px;
+  color: #900;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: 0.3s;
+}
 
-      /* „zeichnen“ von oben nach unten */
-      stroke-dasharray: 1;
-      stroke-dashoffset: 1;
-      transition: stroke-dashoffset var(--arrow-reveal) ease-out;
-    }
-    .arrow-layer.show{
-      opacity: 1;
-    }
-    .arrow.drawn{
-      stroke-dashoffset: 0;
-    }
+/* ===============================
+   PFEIL
+================================ */
 
-    /* ====== Geschützter Inhalt ====== */
-    #content{
-      display:none;
-      margin-top: clamp(18px, 8vh, 56px);
-      padding-bottom: 24vh; /* damit unter dem fixen Panel Platz bleibt */
-    }
+/* Der Pfeil besteht aus einer Linie + Spitze */
+#arrow {
+  position: absolute;
+  top: -160px;      /* dynamisch eingestellt per JS */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+}
 
-    h2{
-      text-align:center;
-      margin: 0 0 10px 0;
-      font-weight: 700;
-    }
+#arrow svg {
+  width: 4px;       /* <--- DÜNNER PFEIL */
+  height: 150px;
+  overflow: visible;
+}
 
-    .letter{
-      white-space: pre-wrap; /* wichtige Einstellung, damit russischer Text umbricht */
-      word-wrap: break-word;
-      text-align: left;
-      font-size: 0.95rem;
-      line-height: 1.4;
-      margin: 14px auto 0 auto;
-      max-width: 95%;
-    }
+/* Fade-in von oben nach unten */
+@keyframes arrow-reveal {
+  0%   { opacity: 0; clip-path: inset(100% 0 0 0); }
+  100% { opacity: 1; clip-path: inset(0 0 0 0); }
+}
 
-    /* Bilderbereich */
-    img{
-      display:block;
-      margin: 20px auto 0 auto;
-      width: min(100%, 320px);
-      height: auto;
-      border: 2px solid #000;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform .25s ease;
-    }
-    img:hover{ transform: scale(1.03); }
+.arrow-animate {
+  animation: arrow-reveal 1.8s ease forwards;
+}
 
-    /* Kleine Viewports – Feintuning */
-    @media (max-width: 380px){
-      :root{
-        --cursor-width: 0.6ch;
-        --auth-top: 58vh;
-      }
-      .auth{ gap:8px; }
-      .auth button{ padding: 11px 12px; }
-    }
-  </style>
+/* Ausblenden beim Klick */
+@keyframes arrow-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.arrow-hide {
+  animation: arrow-fade-out 1s ease forwards;
+}
+
+/* ===============================
+   TEXTBEREICH NACH LOGIN
+================================ */
+#content {
+  display: none;
+  margin-top: 30px;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+img {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 300px;
+  border: 2px solid #000;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+</style>
+
 </head>
 <body>
-  <div class="page">
-    <!-- ====== TYPEWRITER OBEN ====== -->
-    <div class="typewrap">
-      <div id="typewriter" aria-live="polite">
-        <!-- Zeilen werden dynamisch als <span class="tw-line"> eingefügt -->
-        <span id="cursor"></span>
-      </div>
-    </div>
+<div id="page-wrap">
 
-    <!-- ====== SVG-ARROW: wird nach dem Tippen eingeblendet ====== -->
-    <svg class="arrow-layer" id="arrowLayer" width="100%" height="100%" preserveAspectRatio="none">
-      <defs>
-        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#000" stroke-width="1.2"/>
-        </marker>
-      </defs>
-      <line id="arrowLine" class="arrow" x1="0" y1="0" x2="0" y2="0"/>
+<!-- ===============================
+     TYPEWRITER
+================================ -->
+<div id="typewriter">
+  <span id="typed-text"></span><span id="cursor">█</span>
+</div>
+
+<!-- ===============================
+     LOGINBEREICH + PFEIL
+================================ -->
+<div id="login-area">
+
+  <div id="arrow">
+    <svg viewBox="0 0 10 150">
+      <!-- Linie -->
+      <line x1="5" y1="0" x2="5" y2="140" stroke="black" stroke-width="2"/>
+      <!-- Spitze -->
+      <polygon points="0,140 10,140 5,150" fill="black"/>
     </svg>
-
-    <!-- ====== LOGIN (fix, mittig, Button rechts) ====== -->
-    <div class="auth" id="authPanel">
-      <input id="passwordInput" type="password" placeholder="Введи пароль..." autocomplete="off" />
-      <button id="loginBtn" type="button">Войти</button>
-    </div>
-    <div id="errorMessage"></div>
-
-    <!-- ====== GESCHÜTZTER INHALT ====== -->
-    <div id="content">
-      <h2>Не рви - а распутывай</h2>
-
-      <div class="letter"><em><strong>НИТИ</strong>
-
-Внезапное призрение
-- В голову бьют подозрения
-А что если всё обман? -
-нереальность и лож?
-Этот лапочка в своём
-подвале насмехаясь точит нож?
-
-Убить бы свою наивность!
-- поверила опять!
-Сколько раз самой себе же,
-вдабливая, повторять...
-Что нету справедливости -
-Некому полностью доверять!
-Так проверим же на лживость
-Самозванца опять!!
-
-Чёрными слезами
-Образуется огромная лужа.
-Я чёрная в нутри -
-И я чёрная снаружи!
-
-Пусти!
-Я обрываю <strong>нашу нить!</strong>
-Оставь! Уйди!
-Мне больно в тебя верить!</em>
-
-
-
-Привет.
-
-Начну с последней буквы кириллического алфавита.
-
-Я хочу рассказать тебе о своих чувствах не чтобы ты меня пожелала, не чтобы манипулировать тобой и не чтобы ты себя чувствовала плохо. - Я хочу, чтобы ты знала, на сколько ты для меня важна.
-
-Я очень скучаю по тебе и чувствую глубокую боль при мысли о том, что мы можем не увидится, или я даже не узнаю, как у тебя дела. Хоть я и способен выдержать эти чувства, и понимаю тебя - мне всё-же грустно и я действительно переживаю.
-Зная, как ты относишься к "жалости" и слабости - скажу, что мне не страшно показаться слабым и жалким. Я делюсь с тобой своими искренними чувствами - а это не может быть чем-то плохим.
-Я не сломаюсь. Но я очень хочу, чтобы ты продолжала быть частью моей жизни. Я только догадываюсь о мотивах твоего резкого обрыва контакта (надеюсь, что у тебя всё "хорошо") и пряниму любое твоё решение... Но очень хотел бы продолжить общение и услышать, каких отношений ты-бы желала. Давай обсудим с тобой, как это реализовать. У меня есть идеи...
-Если найдутся сили и желание, то пожалуйста напиши мне. Я очень жду.
-
-На сердце боль,
-взгляд смотрит в небо
-- ждёт ответа.
-Душа не верит
-в то, что нету
-- тебя уже нету.
-<em>(Трэшовенько и кичёвенько конечно ^^, но что поделать? xD такие вот умение ассоциации.)</em></div>
-
-      <img id="mainImage" src="image/IMG_8462.JPG" alt="Bild 1" />
-    </div>
   </div>
 
-  <script>
-    /* =======================
-       TYPEWRITER mit Block-Cursor
-       ======================= */
+  <input id="passwordInput" type="password" placeholder="Введи пароль..." />
+  <button onclick="checkPassword()">Войти</button>
 
-    // --- 🔧 Stellschrauben hier anpassen ---
-    const LINES = [
-      "Их много,",
-      "они сплитены",
-      "и наравят порваться.",
-      "Не рви их."
-    ];
-    const BASE_DELAY = getCSSms('--type-base-delay'); // Grundtempo
-    const JITTER = getCSSms('--type-jitter');         // Zufall
-    const LINE_PAUSE = getCSSms('--line-pause');      // Zeilen-Pause
-    const LINE_OFFCENTER = getCSSValue('--line-offcenter'); // z.B. "0.25ch"
+  <div id="errorMessage"></div>
+</div>
 
-    const typewriter = document.getElementById('typewriter');
-    const cursor = document.getElementById('cursor');
-    const arrowLayer = document.getElementById('arrowLayer');
-    const arrowLine = document.getElementById('arrowLine');
-    const authPanel = document.getElementById('authPanel');
-    const errorBox = document.getElementById('errorMessage');
 
-    let lineIndex = 0, charIndex = 0;
-    let currentSpan = null;
+<!-- ===============================
+     GESCHÜTZTER INHALT
+================================ -->
+<div id="content">
+<h2>Не рви - а распутывай</h2>
 
-    // Hilfsfunktionen zum Lesen von CSS-Variablen
-    function getCSSValue(varName){
-      return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-    }
-    function getCSSms(varName){
-      const v = getCSSValue(varName);
-      return Number(v.replace('ms',''));
-    }
-    function randDelay(){ return BASE_DELAY + Math.floor(Math.random()*JITTER); }
+<em><strong>НИТИ</strong>
 
-    // Erstellt eine neue Zeile als <span class="tw-line">
-    function newLineSpan(){
-      const span = document.createElement('span');
-      span.className = 'tw-line';
-      // leichter Offcenter-Versatz je Zeile:
-      span.style.setProperty('--offset', ((lineIndex%2===0?1:-1) * parseFloat(LINE_OFFCENTER)) + 'ch');
-      typewriter.insertBefore(span, cursor);
-      return span;
-    }
+... (DU KANNST HIER DEINEN GANZEN TEXT LASSEN)
+</em>
 
-    function typeNext(){
-      // Ende: Cursor in letzter Zeile stehen lassen, keinen extra Sprung
-      if(lineIndex >= LINES.length) {
-        afterTyping();
-        return;
-      }
+<img id="mainImage" src="image/IMG_8462.JPG" />
+</div>
 
-      if(!currentSpan) currentSpan = newLineSpan();
+</div>
 
-      const line = LINES[lineIndex];
 
-      if(charIndex < line.length){
-        currentSpan.textContent += line.charAt(charIndex++);
-        setTimeout(typeNext, randDelay());
-      } else {
-        // Zeile abgeschlossen -> nächste vorbereiten (aber Cursor NICHT extra verziehen)
-        lineIndex++;
-        charIndex = 0;
-        currentSpan = null;
+<!-- ===============================
+     JAVASCRIPT
+================================ -->
+<script>
 
-        if(lineIndex < LINES.length){
-          setTimeout(typeNext, LINE_PAUSE);
-        } else {
-          // fertig
-          afterTyping();
-        }
-      }
+/* ====================================================
+   1. TYPEWRITER MIT ZUFÄLLIGEM OFFSET
+==================================================== */
+
+const typed = document.getElementById("typed-text");
+const cursor = document.getElementById("cursor");
+
+/* <-- OFFSET-WERTE PRO ZEILE (ANPASSBAR!) */
+const offsets = [3, 0, 1, 4];
+
+/* <-- TEXTZEILEN */
+const lines = [
+  "Их много,",
+  "они сплитены",
+  "и наравят порваться.",
+  "Не рви их."
+];
+
+let li = 0;
+let ci = 0;
+let finishedTyping = false;
+
+function randomDelay() {
+  return Math.floor(Math.random() * 110) + 40; // <--- TIPP-GESCHWINDIGKEIT (ANPASSBAR)
+}
+
+function typeWriter() {
+
+  /* Cursor immer an richtiger Position */
+  cursor.style.position = "relative";
+  cursor.style.left = (offsets[li] + ci) + "ch";
+
+  const line = lines[li];
+
+  if (ci < line.length) {
+    typed.textContent += line[ci];
+    ci++;
+    setTimeout(typeWriter, randomDelay());
+  } else {
+    /* Zeilenumbruch NUR wenn NICHT letzte */
+    if (li < lines.length - 1) {
+      typed.textContent += "\n";
     }
 
-    // Cursor-Höhe exakt an Zeilenhöhe koppeln
-    function adjustCursor(){
-      const lh = parseFloat(getComputedStyle(typewriter).lineHeight);
-      cursor.style.height = lh ? (lh+'px') : getCSSValue('--cursor-height');
+    li++;
+    ci = 0;
+
+    if (li < lines.length) {
+      /* neuen Offset anwenden */
+      typed.textContent += " ".repeat(offsets[li]);
+      setTimeout(typeWriter, 300);
+    } else {
+      /* FERTIG */
+      finishedTyping = true;
+      cursor.style.display = "none";
+      revealArrow();
     }
+  }
+}
 
-    // Pfeil-Linie (SVG) vom unteren Rand des Typewriters bis knapp vor das Input zeichnen
-    function drawArrow(){
-      const twRect = typewriter.getBoundingClientRect();
-      const authRect = authPanel.getBoundingClientRect();
-      const gap = parseFloat(getCSSValue('--arrow-gap')) || 10;
+/* Animation starten */
+typed.textContent = " ".repeat(offsets[0]);
+typeWriter();
 
-      const startX = Math.round(twRect.left + twRect.width/2);
-      const startY = Math.round(twRect.bottom + 6); // kleiner Abstand unter Text
-      const endX   = startX;
-      const endY   = Math.round(authRect.top - gap);
 
-      arrowLine.setAttribute('x1', startX);
-      arrowLine.setAttribute('y1', startY);
-      arrowLine.setAttribute('x2', endX);
-      arrowLine.setAttribute('y2', endY);
 
-      // Länge der Linie für Stroke-Dash "zeichnen"
-      const len = Math.hypot(endX-startX, endY-startY);
-      arrowLine.style.strokeDasharray = String(len);
-      arrowLine.style.strokeDashoffset = String(len);
-    }
+/* ====================================================
+   2. PFEIL EINBLENDEN
+==================================================== */
 
-    function revealArrow(){
-      arrowLayer.classList.add('show');   // Opazität hoch
-      // nächste Repaint-Phase abwarten, dann zeichnen:
-      requestAnimationFrame(()=> {
-        arrowLine.classList.add('drawn'); // Stroke-Dashoffset → 0
-      });
-    }
+function revealArrow() {
+  const arrow = document.getElementById("arrow");
 
-    function afterTyping(){
-      adjustCursor();     // Cursor final justieren
-      drawArrow();        // Pfeil vorbereiten
-      revealArrow();      // und weich einblenden / zeichnen
-      window.addEventListener('resize', ()=>{ drawArrow(); }); // dynamisch bei Resize
-    }
+  arrow.classList.add("arrow-animate");
 
-    // Start
-    window.addEventListener('load', ()=>{
-      adjustCursor();
-      typeNext();
-    });
+  /* Dynamische Position: 5mm unter dem Text */
+  const rect = document.getElementById("typewriter").getBoundingClientRect();
+  arrow.style.top = (rect.height + 10) + "px";
+}
 
-    /* =======================
-       LOGIN / PASSWORT
-       ======================= */
-    const correctPassword = "нити"; // <- HIER DEIN PASSWORT
+/* Pfeil verschwindet beim Klick ins Eingabefeld */
+document.getElementById("passwordInput").addEventListener("focus", () => {
+  const arrow = document.getElementById("arrow");
+  arrow.classList.add("arrow-hide");
+});
 
-    function showError(msg){
-      errorBox.innerHTML = msg;
-      errorBox.style.opacity = 1;
-    }
-    function hideError(){
-      errorBox.style.opacity = 0;
-    }
 
-    function checkPassword(){
-      const input = document.getElementById('passwordInput');
-      hideError();
-      if(input.value === correctPassword){
-        // Inhalt zeigen
-        document.getElementById('content').style.display = 'block';
-        // Pfeil & Auth ausblenden
-        document.getElementById('authPanel').style.display = 'none';
-        document.getElementById('arrowLayer').style.display = 'none';
-        // Benachrichtigung
-        sendVisitNotification();
-      }else{
-        showError('❌ Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
-        input.value = '';
-        input.focus();
-      }
-    }
 
-    // Button und Enter-Key
-    document.getElementById('loginBtn').addEventListener('click', checkPassword);
-    document.getElementById('passwordInput').addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter') checkPassword();
-    });
+/* ====================================================
+   3. LOGIN
+==================================================== */
 
-    /* =======================
-       BILDER: Hover + Klick
-       ======================= */
-    const img = document.getElementById('mainImage');
-    let toggled = false;
-    if(img){
-      img.addEventListener('mouseenter', () => { img.src = 'image/IMG_20251029_213356_289.jpg'; });
-      img.addEventListener('mouseleave', () => { if(!toggled) img.src = 'image/IMG_8462.JPG'; });
-      img.addEventListener('click', () => {
-        toggled = !toggled;
-        img.src = toggled ? 'image/IMG_20251029_213356_289.jpg' : 'image/IMG_8462.JPG';
-      });
-    }
+function checkPassword() {
+  const correct = "нити";
+  const input = document.getElementById("passwordInput").value;
+  const errorBox = document.getElementById("errorMessage");
 
-    /* =======================
-       TELEGRAM-NOTIFY
-       ======================= */
-    function sendVisitNotification(){
-      fetch('/api/notify', { method: 'POST' });
-    }
-  </script>
+  errorBox.style.opacity = 0;
+
+  if (input === correct) {
+    document.getElementById("content").style.display = "block";
+    document.getElementById("login-area").style.display = "none";
+    sendVisitNotification();
+  } else {
+    errorBox.innerHTML = "❌ Неверный пароль<br>русскими, маленькими буквами, во множественном числе";
+    errorBox.style.opacity = 1;
+    document.getElementById("passwordInput").value = "";
+  }
+}
+
+
+
+/* ====================================================
+   4. BILDERWECHSEL
+==================================================== */
+
+const img = document.getElementById("mainImage");
+let toggled = false;
+
+img.addEventListener("mouseenter", () => {
+  img.src = "image/IMG_20251029_213356_289.jpg";
+});
+
+img.addEventListener("mouseleave", () => {
+  if (!toggled) img.src = "image/IMG_8462.JPG";
+});
+
+img.addEventListener("click", () => {
+  toggled = !toggled;
+  img.src = toggled
+    ? "image/IMG_20251029_213356_289.jpg"
+    : "image/IMG_8462.JPG";
+});
+
+
+/* ====================================================
+   5. TELEGRAM-NACHRICHT
+   (IP ist legal OK, aber GEODATEN NICHT!)
+==================================================== */
+
+function sendVisitNotification() {
+  fetch("/api/notify", { method: "POST" });
+}
+
+</script>
+
 </body>
-</html>
+  </html>
