@@ -335,7 +335,7 @@ function newLine(i){
 }
 
 function cursorFollow(){
-  const s=spans[line]-1;
+  const s=spans[line];
   const rect=s.getBoundingClientRect();
   const twr=tw.getBoundingClientRect();
   const txt=s.textContent;
