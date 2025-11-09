@@ -1,53 +1,40 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>nexus filorium fragilium</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nexus filorium fragilium</title>
 
 <style>
-
-/* ===============================
-   GRUNDLAYOUT
-================================ */
+/* === Grundlayout === */
 body {
-  background: #fff;
-  color: #000;
   font-family: "Courier New", monospace;
+  background-color: #fff;
+  color: #000;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Container hält ALLES mittig */
-#page-wrap {
-  width: 100%;
-  max-width: 600px;
-  padding: 20px;
-  box-sizing: border-box;
   text-align: center;
 }
 
-/* ===============================
-   TYPEWRITER-BLOCK
-================================ */
+/* Container für Text + Cursor */
 #typewriter {
+  margin-top: 60px;
   white-space: pre;
   font-size: 1.3rem;
-  line-height: 1.5;
+  line-height: 1.6;
   display: inline-block;
-  margin-top: 40px;
+  position: relative;
 }
 
-/* Cursorblock (█) */
+/* Cursor */
 #cursor {
   display: inline-block;
-  width: 1ch;
-  background: #000;
-  animation: blink 0.7s steps(1) infinite;
+  width: 0.9ch;
+  height: 1.3rem;
+  background: black;
+  margin-left: 2px;
+  animation: blink 0.7s infinite;
   vertical-align: bottom;
 }
 
@@ -55,178 +42,80 @@ body {
   50% { opacity: 0; }
 }
 
-/* ===============================
-   EINGABEFELD
-================================ */
-
-#login-area {
+/* Passwort + Button */
+.input-wrap {
   margin-top: 40px;
-  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
 }
 
 input[type="password"] {
-  background: #222;        /* dunkelgrau */
-  color: #ddd;             /* Schrift */
-  border: 2px solid #000;  /* schwarzer Rand */
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 16px;
-  width: 180px;
-  text-align: center;
+  background: #222;               /* dunkles Grau */
+  color: #ccc;                    /* Textfarbe */
+  border: 2px solid #000;         
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  width: 220px;
 }
 
-input[type="password"]::placeholder {
-  color: #bbb;             /* passende Farbe */
+input::placeholder {
+  color: #aaa;                    /* heller grauer Placeholder */
 }
 
 button {
   background: #000;
   color: #fff;
   border: 2px solid #000;
-  padding: 10px 14px;
-  font-size: 16px;
-  border-radius: 6px;
-  margin-left: 5px;
-  cursor: pointer;
-}
-
-/* ===============================
-   FEHLERMELDUNG
-================================ */
-#errorMessage {
-  margin-top: 15px;
-  color: #900;
-  font-size: 0.9rem;
-  opacity: 0;
-  transition: 0.3s;
-}
-
-/* ===============================
-   PFEIL
-================================ */
-
-/* Der Pfeil besteht aus einer Linie + Spitze */
-#arrow {
-  position: absolute;
-  top: -160px;      /* dynamisch eingestellt per JS */
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;
-  pointer-events: none;
-}
-
-#arrow svg {
-  width: 4px;       /* <--- DÜNNER PFEIL */
-  height: 150px;
-  overflow: visible;
-}
-
-/* Fade-in von oben nach unten */
-@keyframes arrow-reveal {
-  0%   { opacity: 0; clip-path: inset(100% 0 0 0); }
-  100% { opacity: 1; clip-path: inset(0 0 0 0); }
-}
-
-.arrow-animate {
-  animation: arrow-reveal 1.8s ease forwards;
-}
-
-/* Ausblenden beim Klick */
-@keyframes arrow-fade-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-
-.arrow-hide {
-  animation: arrow-fade-out 1s ease forwards;
-}
-
-/* ===============================
-   TEXTBEREICH NACH LOGIN
-================================ */
-#content {
-  display: none;
-  margin-top: 30px;
-  text-align: left;
-  white-space: pre-wrap;
-}
-
-img {
-  margin-top: 20px;
-  width: 100%;
-  max-width: 300px;
-  border: 2px solid #000;
+  padding: 12px 18px;
   border-radius: 10px;
-  cursor: pointer;
+  font-size: 1rem;
 }
 
+/* Schwarzer, dünner Pfeil */
+#arrow {
+  margin: 0 auto;
+  width: 2px;
+  background: #000;
+  position: relative;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 1.4s ease, transform 1.4s ease;
+}
+
+#arrow::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: -4px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid black;
+}
 </style>
-
 </head>
-<body>
-<div id="page-wrap">
 
-<!-- ===============================
-     TYPEWRITER
-================================ -->
+<body>
+
 <div id="typewriter">
-  <span id="typed-text"></span><span id="cursor">█</span>
+  <span id="typed"></span><span id="cursor"></span>
 </div>
 
-<!-- ===============================
-     LOGINBEREICH + PFEIL
-================================ -->
-<div id="login-area">
+<div id="arrow"></div> 
 
-  <div id="arrow">
-    <svg viewBox="0 0 10 150">
-      <!-- Linie -->
-      <line x1="5" y1="0" x2="5" y2="140" stroke="black" stroke-width="2"/>
-      <!-- Spitze -->
-      <polygon points="0,140 10,140 5,150" fill="black"/>
-    </svg>
-  </div>
-
+<div class="input-wrap">
   <input id="passwordInput" type="password" placeholder="Введи пароль..." />
   <button onclick="checkPassword()">Войти</button>
-
-  <div id="errorMessage"></div>
 </div>
 
-
-<!-- ===============================
-     GESCHÜTZTER INHALT
-================================ -->
-<div id="content">
-<h2>Не рви - а распутывай</h2>
-
-<em><strong>НИТИ</strong>
-
-... (DU KANNST HIER DEINEN GANZEN TEXT LASSEN)
-</em>
-
-<img id="mainImage" src="image/IMG_8462.JPG" />
-</div>
-
-</div>
-
-
-<!-- ===============================
-     JAVASCRIPT
-================================ -->
 <script>
-
-/* ====================================================
-   1. TYPEWRITER MIT ZUFÄLLIGEM OFFSET
-==================================================== */
-
-const typed = document.getElementById("typed-text");
-const cursor = document.getElementById("cursor");
-
-/* <-- OFFSET-WERTE PRO ZEILE (ANPASSBAR!) */
+/* === OFFSET der Zeilen === */
+/* Werte von dir: 3 – 0 – 1 – 4 */
 const offsets = [3, 0, 1, 4];
 
-/* <-- TEXTZEILEN */
 const lines = [
   "Их много,",
   "они сплитены",
@@ -234,133 +123,73 @@ const lines = [
   "Не рви их."
 ];
 
-let li = 0;
-let ci = 0;
-let finishedTyping = false;
+const typed = document.getElementById("typed");
+const cursor = document.getElementById("cursor");
+const arrow = document.getElementById("arrow");
 
-function randomDelay() {
-  return Math.floor(Math.random() * 110) + 40; // <--- TIPP-GESCHWINDIGKEIT (ANPASSBAR)
-}
+let lineIndex = 0;
+let charIndex = 0;
+
+/* === Geschwindigkeit des Tippens (anpassbar) === */
+function delay() { return Math.floor(Math.random() * 120) + 50; }
 
 function typeWriter() {
+  const line = lines[lineIndex];
 
-  /* Cursor immer an richtiger Position */
-  cursor.style.position = "relative";
-  cursor.style.left = (offsets[li] + ci) + "ch";
+  /* Cursor vor den Text setzen */
+  cursor.style.transform = "translateX(" + (offsets[lineIndex] * 0.6) + "rem)";
 
-  const line = lines[li];
-
-  if (ci < line.length) {
-    typed.textContent += line[ci];
-    ci++;
-    setTimeout(typeWriter, randomDelay());
-  } else {
-    /* Zeilenumbruch NUR wenn NICHT letzte */
-    if (li < lines.length - 1) {
-      typed.textContent += "\n";
+  if (charIndex < line.length) {
+    if (charIndex === 0) {
+      typed.textContent += " ".repeat(offsets[lineIndex]);
     }
 
-    li++;
-    ci = 0;
+    typed.textContent += line[charIndex];
+    charIndex++;
+    setTimeout(typeWriter, delay());
+  } else {
+    lineIndex++;
+    charIndex = 0;
 
-    if (li < lines.length) {
-      /* neuen Offset anwenden */
-      typed.textContent += " ".repeat(offsets[li]);
-      setTimeout(typeWriter, 300);
+    if (lineIndex < lines.length) {
+      typed.textContent += "\n";
+      setTimeout(typeWriter, 400);
     } else {
-      /* FERTIG */
-      finishedTyping = true;
-      cursor.style.display = "none";
-      revealArrow();
+      cursor.style.opacity = 1;
+      cursor.style.animation = "blink 0.7s infinite";
+
+      /* === Pfeil einblenden === */
+      setTimeout(() => {
+        arrow.style.height = "120px";
+        arrow.style.opacity = "1";
+        arrow.style.transform = "translateY(0)";
+      }, 800);
     }
   }
 }
 
-/* Animation starten */
-typed.textContent = " ".repeat(offsets[0]);
 typeWriter();
 
-
-
-/* ====================================================
-   2. PFEIL EINBLENDEN
-==================================================== */
-
-function revealArrow() {
-  const arrow = document.getElementById("arrow");
-
-  arrow.classList.add("arrow-animate");
-
-  /* Dynamische Position: 5mm unter dem Text */
-  const rect = document.getElementById("typewriter").getBoundingClientRect();
-  arrow.style.top = (rect.height + 10) + "px";
-}
-
-/* Pfeil verschwindet beim Klick ins Eingabefeld */
+/* Pfeil verschwindet, wenn man ins Eingabefeld klickt */
 document.getElementById("passwordInput").addEventListener("focus", () => {
-  const arrow = document.getElementById("arrow");
-  arrow.classList.add("arrow-hide");
+  arrow.style.opacity = "0";
+  arrow.style.transform = "translateY(20px)";
 });
 
-
-
-/* ====================================================
-   3. LOGIN
-==================================================== */
+/* === Passwortprüfung === */
+const correctPassword = "нити";
 
 function checkPassword() {
-  const correct = "нити";
-  const input = document.getElementById("passwordInput").value;
-  const errorBox = document.getElementById("errorMessage");
+  const val = document.getElementById("passwordInput").value;
 
-  errorBox.style.opacity = 0;
-
-  if (input === correct) {
-    document.getElementById("content").style.display = "block";
-    document.getElementById("login-area").style.display = "none";
-    sendVisitNotification();
+  if (val === correctPassword) {
+    fetch('/api/notify', { method: 'POST' });
+    alert("✅ Добро пожаловать.");
   } else {
-    errorBox.innerHTML = "❌ Неверный пароль<br>русскими, маленькими буквами, во множественном числе";
-    errorBox.style.opacity = 1;
-    document.getElementById("passwordInput").value = "";
+    alert("❌ Неверный пароль.");
   }
 }
-
-
-
-/* ====================================================
-   4. BILDERWECHSEL
-==================================================== */
-
-const img = document.getElementById("mainImage");
-let toggled = false;
-
-img.addEventListener("mouseenter", () => {
-  img.src = "image/IMG_20251029_213356_289.jpg";
-});
-
-img.addEventListener("mouseleave", () => {
-  if (!toggled) img.src = "image/IMG_8462.JPG";
-});
-
-img.addEventListener("click", () => {
-  toggled = !toggled;
-  img.src = toggled
-    ? "image/IMG_20251029_213356_289.jpg"
-    : "image/IMG_8462.JPG";
-});
-
-
-/* ====================================================
-   5. TELEGRAM-NACHRICHT
-   (IP ist legal OK, aber GEODATEN NICHT!)
-==================================================== */
-
-function sendVisitNotification() {
-  fetch("/api/notify", { method: "POST" });
-}
-
 </script>
 
 </body>
-  </html>
+</html>
