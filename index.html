@@ -1,208 +1,207 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>nexus filorium fragilium</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    /* =====================================================================
-       🌙 STELLSCHRAUBEN (hier kannst du alles nach Wunsch anpassen!)
-       ===================================================================== */
-    :root{
-      --type-base-delay: 100ms;     /* Grundtempo des Tippens */
-      --type-jitter: 150ms;         /* Zufällige Zusatzwartezeit */
-      --line-pause: 420ms;          /* Pause zwischen Zeilen */
+<title>nexus filorium fragilium</title>
 
-      --cursor-width: 0.7ch;        /* Dicke des Cursors */
-      --cursor-height: 1.15em;      /* Höhe des Cursors */
-      --cursor-blink: 0.7s;         /* Blinktempo */
+<style>
+/* =====================================================================
+   🌙 STELLSCHRAUBEN (hier kannst du alles nach Wunsch anpassen!)
+   ===================================================================== */
+:root{
+  --type-base-delay: 100ms;     /* Grundtempo des Tippens */
+  --type-jitter: 150ms;         /* Zufällige Zusatzwartezeit */
+  --line-pause: 420ms;          /* Pause zwischen Zeilen */
 
-      --line-offcenter: 0.25ch;     /* Versatz jeder zweiten Zeile */
+  --cursor-width: 0.7ch;        /* Dicke des Cursors */
+  --cursor-height: 1.15em;      /* Höhe des Cursors */
+  --cursor-blink: 0.7s;         /* Blinktempo */
 
-      --arrow-stroke: 1.3px;        /* Dicke der Pfeillinie */
-      --arrow-gap: 14px;            /* Abstand Pfeil → Eingabefeld */
-      --arrow-reveal: 1300ms;       /* Dauer des "Zeichnens" */
-      --arrow-fade: 900ms;          /* Einblend-Fade */
+  --line-offcenter: 0.25ch;     /* Versatz jeder zweiten Zeile */
 
-      --auth-top: 55vh;             /* Vertikale Position des Loginfelds */
+  --arrow-stroke: 1.3px;        /* Dicke der Pfeillinie */
+  --arrow-gap: 14px;            /* Abstand Pfeil → Eingabefeld */
+  --arrow-reveal: 1300ms;       /* Dauer des "Zeichnens" */
+  --arrow-fade: 900ms;          /* Einblend-Fade */
 
-      --page-max: 650px;
-      --page-pad: 20px;
+  --auth-top: 55vh;             /* Vertikale Position des Loginfelds */
 
-      --mono: "Courier New","Lucida Console",monospace;
-    }
+  --page-max: 650px;
+  --page-pad: 20px;
 
-    *{ box-sizing: border-box; }
+  --mono: "Courier New","Lucida Console",monospace;
+}
 
-    body{
-      margin:0;
-      font-family: var(--mono);
-      background:#fff;
-      color:#000;
-      overflow-x:hidden;
-      min-height:100vh;
-    }
+/* =====================================================================
+   📄 LAYOUT BASIS
+   ===================================================================== */
+*{box-sizing:border-box;}
 
-    .page{
-      max-width: var(--page-max);
-      margin:0 auto;
-      padding: var(--page-pad);
-      position: relative;
-    }
+body{
+  margin:0;
+  background:#fff;
+  color:#000;
+  font-family:var(--mono);
+  overflow-x:hidden;
+  min-height:100vh;
+}
 
-    /* =====================================================================
-       ✒️ TYPEWRITER
-       ===================================================================== */
-    .typewrap{
-      display:flex;
-      justify-content:center;
-      width:100%;
-      margin-top: clamp(20px, 6vh, 50px);
-    }
+.page{
+  max-width:var(--page-max);
+  padding:var(--page-pad);
+  margin:0 auto;
+  position:relative;
+}
 
-    #typewriter{
-      position:relative;
-      white-space:pre-wrap;
-      text-align:center;
-      font-size:1.1rem;
-      width:95%;
-      line-height:1.25;
-    }
+/* =====================================================================
+   ✒️ TYPEWRITER-BEREICH OBEN
+   ===================================================================== */
+.typewrap{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  margin-top:50px;
+}
 
-    .tw-line{
-      display:block;
-      transform: translateX(var(--offset, 0));
-    }
+#typewriter{
+  font-size:1.1rem;
+  line-height:1.25;
+  white-space:pre-wrap;
+  width:100%;
+  text-align:center;
+  position:relative;
+}
 
-    #cursor{
-      display:inline-block;
-      width:var(--cursor-width);
-      height:var(--cursor-height);
-      background:#000;
-      animation: blink var(--cursor-blink) steps(1) infinite;
-      vertical-align:-0.15em;
-      margin-left:3px;
-    }
+.tw-line{
+  display:block;
+  transform:translateX(var(--offset));
+}
 
-    @keyframes blink{ 50%{opacity:0;} }
+/* Cursor folgt live der Schreibposition */
+#cursor{
+  position:absolute;
+  display:block;
+  width:var(--cursor-width);
+  height:var(--cursor-height);
+  background:#000;
+  animation:blink var(--cursor-blink) steps(1) infinite;
+}
 
-    /* =====================================================================
-       🔐 LOGINFELD (fixiert)
-       ===================================================================== */
-    .auth{
-      position:fixed;
-      left:50%;
-      top:var(--auth-top);
-      transform:translate(-50%,-50%);
-      display:flex;
-      gap:12px;
-      width:min(92vw,520px);
-      z-index:10;
-    }
+@keyframes blink {50%{opacity:0;}}
 
-    .auth input[type=password]{
-      flex:1;
-      padding:12px 14px;
-      border:1px solid #000;
-      background:#222;
-      color:#ccc;
-      border-radius:8px;
-      font-family:var(--mono);
-      font-size:16px;
-    }
+/* =====================================================================
+   🔐 LOGIN-FELD (fixierte Position)
+   ===================================================================== */
+.auth{
+  position:fixed;
+  left:50%;
+  top:var(--auth-top);
+  transform:translate(-50%, -50%);
+  display:flex;
+  gap:12px;
+  width:min(92vw, 520px);
+  z-index:10;
+}
 
-    .auth input::placeholder{ color:#bbb; }
+.auth input{
+  flex:1;
+  padding:12px;
+  border:1px solid #000;
+  background:#222;
+  color:#ccc;
+  border-radius:8px;
+  font-family:var(--mono);
+}
 
-    .auth button{
-      padding:12px 14px;
-      border:1px solid #000;
-      background:#000;
-      color:#fff;
-      border-radius:8px;
-      font-family:var(--mono);
-      cursor:pointer;
-    }
+.auth input::placeholder{
+  color:#bbb;
+}
 
-    #errorMessage{
-      position:fixed;
-      left:50%;
-      top:calc(var(--auth-top) + 48px);
-      transform:translateX(-50%);
-      color:#b00020;
-      opacity:0;
-      transition:opacity .25s ease;
-      text-align:center;
-      z-index:10;
-    }
+.auth button{
+  padding:12px 14px;
+  border:1px solid #000;
+  border-radius:8px;
+  background:#000;
+  color:#fff;
+  font-family:var(--mono);
+}
 
-    /* =====================================================================
-       ⬇️ Pfeil (SVG)
-       ===================================================================== */
-    .arrow-layer{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:0;
-      transition: opacity var(--arrow-fade);
-      z-index:5;
-    }
+#errorMessage{
+  position:fixed;
+  left:50%;
+  top:calc(var(--auth-top) + 50px);
+  transform:translateX(-50%);
+  opacity:0;
+  color:#b00020;
+  text-align:center;
+  transition:opacity .25s;
+  z-index:10;
+}
 
-    .arrow{
-      stroke:#000;
-      stroke-width:var(--arrow-stroke);
-      fill:none;
-      marker-end:url(#arrowhead);
-      stroke-dasharray:1;
-      stroke-dashoffset:1;
-      transition: stroke-dashoffset var(--arrow-reveal) ease-out;
-    }
+/* =====================================================================
+   ⬇️ PFEIL VOM TEXT ZUM EINGABEFELD
+   ===================================================================== */
+.arrow-layer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity var(--arrow-fade);
+  z-index:5;
+}
 
-    .arrow-layer.show{ opacity:1; }
-    .arrow.drawn{ stroke-dashoffset:0; }
+.arrow{
+  stroke:#000;
+  stroke-width:var(--arrow-stroke);
+  fill:none;
+  marker-end:url(#arrowhead);
 
-    /* =====================================================================
-       📜 GESCHÜTZTER INHALT
-       ===================================================================== */
-    #content{
-      display:none;
-      margin-top: clamp(20px, 12vh, 60px);
-      padding-bottom:20vh;
-    }
+  stroke-dasharray:1;
+  stroke-dashoffset:1;
+  transition:stroke-dashoffset var(--arrow-reveal) ease-out;
+}
 
-    .letter{
-      white-space:pre-wrap;
-      font-size:0.95rem;
-      line-height:1.4;
-      margin-top:20px;
-    }
+.arrow-layer.show{opacity:1;}
+.arrow.drawn{stroke-dashoffset:0;}
 
-    img{
-      display:block;
-      margin:20px auto 0 auto;
-      width:min(100%,320px);
-      border:2px solid #000;
-      border-radius:10px;
-      cursor:pointer;
-      transition: transform .2s ease;
-    }
-    img:hover{ transform:scale(1.03); }
+/* =====================================================================
+   📜 GESCHÜTZTER INHALT
+   ===================================================================== */
+#content{
+  display:none;
+  margin-top:120px;
+}
 
-  </style>
+.letter{
+  white-space:pre-wrap;
+  line-height:1.4;
+  margin-top:20px;
+}
+
+img{
+  display:block;
+  margin:20px auto 0 auto;
+  width:min(100%,320px);
+  border:2px solid #000;
+  border-radius:10px;
+  cursor:pointer;
+  transition:transform .2s;
+}
+img:hover{transform:scale(1.03);}
+</style>
 </head>
 
 <body>
-
 <div class="page">
 
-  <!-- ✒️ TYPEWRITER -->
+  <!-- ================= TYPEWRITER ================= -->
   <div class="typewrap">
-    <div id="typewriter">
-      <span id="cursor"></span>
-    </div>
+    <div id="typewriter"><span id="cursor"></span></div>
   </div>
 
-  <!-- ⬇️ PFEIL -->
+  <!-- ================= PFEIL ================= -->
   <svg class="arrow-layer" id="arrowLayer" width="100%" height="100%">
     <defs>
       <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
@@ -212,7 +211,7 @@
     <line id="arrowLine" class="arrow" x1="0" y1="0" x2="0" y2="0"/>
   </svg>
 
-  <!-- 🔐 LOGIN -->
+  <!-- ================= LOGIN ================= -->
   <div class="auth" id="authPanel">
     <input id="passwordInput" type="password" placeholder="Введи пароль..." />
     <button id="loginBtn">Войти</button>
@@ -220,42 +219,43 @@
 
   <div id="errorMessage"></div>
 
-  <!-- 📜 GEHEIMER INHALT -->
+  <!-- ================= CONTENT ================= -->
   <div id="content">
-
     <h2>Не рви — а распутывай</h2>
 
     <div class="letter"><em><strong>НИТИ</strong>
+<em>
+<strong>
+НИТИ
+</strong>
 
-Внезапное призрение  
-- В голову бьют подозрения  
-А что если всё обман? —  
-нереальность и лож?  
-Этот лапочка в своём  
+Внезапное призрение
+- В голову бьют подозрения
+А что если всё обман? -
+нереальность и лож?
+Этот лапочка в своём
 подвале насмехаясь точит нож?
 
-Убить бы свою наивность!  
-- поверила опять!  
-Сколько раз самой себе же,  
-вдабливая, повторять...  
-Что нету справедливости —  
-Некому полностью доверять!  
-Так проверим же на лживость  
+Убить бы свою наивность!
+- поверила опять!
+Сколько раз самой себе же,
+вдабливая, повторять...
+Что нету справедливости -
+Некому полностью доверять!
+Так проверим же на лживость
 Самозванца опять!!
 
-Чёрными слезами  
-Образуется огромная лужа.  
-Я чёрная внутри —  
+Чёрными слезами
+Образуется огромная лужа.
+Я чёрная в нутри -
 И я чёрная снаружи!
 
-Пусти!  
-Я обрываю <strong>нашу нить!</strong>  
-Оставь! Уйди!  
-Мне больно в тебя верить!</em>
+Пусти!
+Я обрываю нашу нить!
+Оставь! Уйди!
+Мне больно в тебя верить!
+</em>
 
-
-
-Привет.
 
 Начну с последней буквы кириллического алфавита.
 
@@ -274,33 +274,25 @@
 - тебя уже нету.
 (Трэшовенько и кичёвенько конечно ^^, но что поделать? xD такие вот умение ассоциации.)
 
-</div>
+</em></div>
 
-    <img id="mainImage" src="image/IMG_8462.JPG" alt="Bild" />
+    <img id="mainImage" src="image/IMG_8462.JPG">
+  </div>
 
-    <div class="letter">
-Ты действительно нашла друга.
+<div class="letter">
+  Ты действительно нашла друга.
 Не потеряй.
 ...по братски!
-    </div>
-    
-  </div>
+</div>
+  
+  
 </div>
 
 <script>
-/* =====================================================================
-   🔧 HILFSFUNKTIONEN
-   ===================================================================== */
-function cssMs(name){
-  return Number(getComputedStyle(document.documentElement).getPropertyValue(name).replace("ms",""));
-}
-function cssVal(name){
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
+/* ================================================================
+   ✒️ TYPEWRITER MIT LIVE-FOLGENDEM CURSOR
+   ================================================================ */
 
-/* =====================================================================
-   ✒️ TYPEWRITER
-   ===================================================================== */
 const LINES = [
   "Их много,",
   "они сплитены",
@@ -308,156 +300,174 @@ const LINES = [
   "Не рви их."
 ];
 
-const BASE = cssMs('--type-base-delay');
-const JITTER = cssMs('--type-jitter');
-const PAUSE = cssMs('--line-pause');
-const OFFSET = cssVal('--line-offcenter');
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v);}
 
-const tWrap = document.getElementById('typewriter');
+const BASE = parseInt(css('--type-base-delay'));
+const JITTER = parseInt(css('--type-jitter'));
+const PAUSE = parseInt(css('--line-pause'));
+
+const tw = document.getElementById('typewriter');
 const cursor = document.getElementById('cursor');
 
-let line=0, char=0, span=null;
+let line=0, char=0;
+let spans=[];
 
-function newLine(){
+function measure(text){
+  const tmp=document.createElement("span");
+  tmp.style.visibility="hidden";
+  tmp.style.position="absolute";
+  tmp.style.fontFamily=css('--mono');
+  tmp.style.fontSize="1.1rem";
+  tmp.style.whiteSpace="pre";
+  tmp.textContent=text;
+  document.body.appendChild(tmp);
+  const w=tmp.getBoundingClientRect().width;
+  tmp.remove();
+  return w;
+}
+
+function newLine(i){
   const s=document.createElement('span');
   s.className="tw-line";
-  s.style.setProperty('--offset', ((line%2===0?1:-1)*parseFloat(OFFSET))+"ch");
-  tWrap.insertBefore(s,cursor);
-  return s;
+
+  const base=parseFloat(css('--line-offcenter'));
+
+  const off = (i===0?3*base : i===1?0 : i===2?1*base : 4*base);
+  s.style.setProperty('--offset', off+"ch");
+
+  tw.insertBefore(s, cursor);
+  spans[i]=s;
 }
 
-function randDelay(){ return BASE + Math.random()*JITTER; }
+function cursorFollow(){
+  const s=spans[line];
+  const rect=s.getBoundingClientRect();
+  const twr=tw.getBoundingClientRect();
+  const txt=s.textContent;
+
+  cursor.style.top = s.offsetTop+"px";
+  cursor.style.left = (rect.left - twr.left + measure(txt))+"px";
+}
+
+function d(){return BASE + Math.random()*JITTER;}
 
 function type(){
-  if(line >= LINES.length){
-    finishTyping();
-    return;
-  }
+  if(line>=LINES.length){ finishTyping(); return; }
 
-  if(!span) span = newLine();
-  const text = LINES[line];
+  if(!spans[line]) newLine(line);
 
-  if(char < text.length){
-    span.textContent += text[char++];
-    setTimeout(type, randDelay());
+  const t=LINES[line];
+  const s=spans[line];
+
+  if(char < t.length){
+    s.textContent += t[char++];
+    cursorFollow();
+    setTimeout(type, d());
   } else {
-    line++;
-    char = 0;
-    span = null;
-    if(line < LINES.length) setTimeout(type, PAUSE);
-    else finishTyping();
+    line++; char=0;
+    if(line<LINES.length){
+      newLine(line);
+      setTimeout(type, PAUSE);
+    } else finishTyping();
   }
 }
 
-function fixCursorHeight(){
-  const lh = parseFloat(getComputedStyle(tWrap).lineHeight);
-  cursor.style.height = lh+"px";
-}
-
-/* =====================================================================
-   ⬇️ Pfeil anzeigen
-   ===================================================================== */
-const arrowLayer = document.getElementById('arrowLayer');
-const arrow = document.getElementById('arrowLine');
-const authPanel = document.getElementById('authPanel');
+/* ================================================================
+   ⬇️ PFEIL
+   ================================================================ */
+const arrowLayer=document.getElementById('arrowLayer');
+const arrowLine=document.getElementById('arrowLine');
+const authPanel=document.getElementById('authPanel');
 
 function drawArrow(){
-  const tw = tWrap.getBoundingClientRect();
-  const auth = authPanel.getBoundingClientRect();
-  const gap = parseFloat(cssVal('--arrow-gap'));
+  const twRect = tw.getBoundingClientRect();
+  const authRect = authPanel.getBoundingClientRect();
+  const gap = parseFloat(css('--arrow-gap'));
 
-  const x = Math.round(tw.left + tw.width/2);
-  const y1 = Math.round(tw.bottom + 6);
-  const y2 = Math.round(auth.top - gap);
+  const x = Math.round(twRect.left + twRect.width/2);
+  const y1 = Math.round(twRect.bottom + 8);
+  const y2 = Math.round(authRect.top - gap);
 
-  arrow.setAttribute('x1', x);
-  arrow.setAttribute('y1', y1);
-  arrow.setAttribute('x2', x);
-  arrow.setAttribute('y2', y2);
+  arrowLine.setAttribute("x1",x);
+  arrowLine.setAttribute("y1",y1);
+  arrowLine.setAttribute("x2",x);
+  arrowLine.setAttribute("y2",y2);
 
-  const len = Math.abs(y2 - y1);
-  arrow.style.strokeDasharray = String(len);
-  arrow.style.strokeDashoffset = String(len);
+  const len=Math.abs(y2-y1);
+  arrowLine.style.strokeDasharray=len;
+  arrowLine.style.strokeDashoffset=len;
 }
 
 function revealArrow(){
-  arrowLayer.classList.add('show');
-  requestAnimationFrame(()=> arrow.classList.add('drawn'));
+  arrowLayer.classList.add("show");
+  requestAnimationFrame(()=> arrowLine.classList.add("drawn"));
 }
 
-/* =====================================================================
-   ✅ Nach Tippende
-   ===================================================================== */
 function finishTyping(){
-  fixCursorHeight();
   drawArrow();
   revealArrow();
   window.addEventListener('resize', drawArrow);
 }
 
-/* =====================================================================
+/* ================================================================
    🔐 LOGIN
-   ===================================================================== */
-const correctPassword = "нити";
+   ================================================================ */
+
+const correctPassword="нити";
 
 function checkPassword(){
-  const inp=document.getElementById('passwordInput');
+  const input=document.getElementById('passwordInput');
   const msg=document.getElementById('errorMessage');
   msg.style.opacity=0;
 
-  if(inp.value === correctPassword){
+  if(input.value===correctPassword){
     document.getElementById('content').style.display='block';
-    document.getElementById('authPanel').style.display='none';
-    document.getElementById('arrowLayer').style.display='none';
+    authPanel.style.display='none';
+    arrowLayer.style.display='none';
     sendVisitNotification();
-  }else{
-    msg.innerHTML="Неверный пароль.<br>русскими, маленькими буквами, во множественном числе";
+  } else {
+    msg.innerHTML="Неверный пароль<br>русскими, маленькими буквами, во множественном числе";
     msg.style.opacity=1;
-    inp.value="";
-    inp.focus();
+    input.value='';
+    input.focus();
   }
 }
 
 document.getElementById('loginBtn').onclick = checkPassword;
-document.getElementById('passwordInput').addEventListener('keydown', e=>{
+document.getElementById('passwordInput').addEventListener('keydown',e=>{
   if(e.key==="Enter") checkPassword();
 });
 
-/* Pfeil verschwindet bei Klick ins Eingabefeld */
-document.getElementById('passwordInput').addEventListener('focus', ()=>{
-  arrowLayer.style.display='none';
+/* Pfeil verschwindet beim Fokussieren */
+document.getElementById('passwordInput').addEventListener('focus',()=>{
+  arrowLayer.style.display="none";
 });
 
-/* =====================================================================
-   🖼️ BILDWECHSEL
-   ===================================================================== */
-let toggled=false;
+/* ================================================================
+   🖼️ BILDER
+   ================================================================ */
 const img=document.getElementById('mainImage');
+let toggled=false;
 
-img.addEventListener('mouseenter', ()=> img.src="image/IMG_20251029_213356_289.jpg");
-img.addEventListener('mouseleave', ()=> { if(!toggled) img.src="image/IMG_8462.JPG"; });
-img.addEventListener('click', ()=>{
+img.addEventListener('mouseenter',()=> img.src="image/IMG_20251029_213356_289.jpg");
+img.addEventListener('mouseleave',()=>{ if(!toggled) img.src="image/IMG_8462.JPG";});
+img.addEventListener('click',()=>{
   toggled=!toggled;
-  img.src = toggled
-    ? "image/IMG_20251029_213356_289.jpg"
-    : "image/IMG_8462.JPG";
+  img.src= toggled ? "image/IMG_20251029_213356_289.jpg" : "image/IMG_8462.JPG";
 });
 
-/* =====================================================================
-   📡 TELEGRAM NOTIFY
-   ===================================================================== */
+/* ================================================================
+   📬 TELEGRAM-NOTIFY
+   ================================================================ */
 function sendVisitNotification(){
-  fetch('/api/notify',{method:'POST'});
+  fetch('/api/notify',{method:"POST"});
 }
 
-/* =====================================================================
-   ▶️ START
-   ===================================================================== */
-window.onload = ()=>{
-  fixCursorHeight();
-  type();
-};
-</script>
+/* ================================================================
+   🚀 START
+   ================================================================ */
+window.onload = ()=> type();
 
+</script>
 </body>
 </html>
