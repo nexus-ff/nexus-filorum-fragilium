@@ -387,6 +387,9 @@
 
         setTimeout(typeNext, randDelay());
       } else {
+
+        currentSpan.querySelector('.cursor')?.remove();
+        
         // Zeile abgeschlossen → kleine Pause, dann nächste Zeile
         lineIndex++;
         charIndex = 0;
@@ -431,11 +434,9 @@
     }
 
     function revealArrow(){
-      // erst sichtbar blenden …
       arrowLayer.classList.add('show');
-      // … und in der nächsten Repaint-Phase zeichnen (oben → unten)
-      requestAnimationFrame(()=> {
-        arrowLine.classList.add('drawn'); // stroke-dashoffset: 0
+      requestAnimationFrame(() => {
+      arrowLine.classList.add('drawn');
       });
     }
 
