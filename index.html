@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -11,8 +12,8 @@
    🌙 STELLSCHRAUBEN (hier kannst du alles nach Wunsch anpassen!)
    ===================================================================== */
 :root{
-  --type-base-delay: 120ms;     /* Grundtempo des Tippens */
-  --type-jitter: 80ms;         /* Zufällige Zusatzwartezeit */
+  --type-base-delay: 100ms;     /* Grundtempo des Tippens */
+  --type-jitter: 150ms;         /* Zufällige Zusatzwartezeit */
   --line-pause: 420ms;          /* Pause zwischen Zeilen */
 
   --cursor-width: 0.7ch;        /* Dicke des Cursors */
@@ -224,6 +225,10 @@ img:hover{transform:scale(1.03);}
     <h2>Не рви — а распутывай</h2>
 
     <div class="letter"><em><strong>НИТИ</strong>
+<em>
+<strong>
+НИТИ
+</strong>
 
 Внезапное призрение
 - В голову бьют подозрения
@@ -273,36 +278,21 @@ img:hover{transform:scale(1.03);}
 </em></div>
 
     <img id="mainImage" src="image/IMG_8462.JPG">
+  </div>
 
-     <div class="letter">
+<div class="letter">
   Ты действительно нашла друга.
 Не потеряй.
 ...по братски!
-     </div>
-     
-  </div>
+</div>
+  
+  
 </div>
 
 <script>
-   
 /* ================================================================
    ✒️ TYPEWRITER MIT LIVE-FOLGENDEM CURSOR
    ================================================================ */
-
-/* =======================
-   Hilfsfunktionen
-   ======================= */
-function getCSSValue(varName){
-  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-}
-function getCSSms(varName){
-  return Number(getCSSValue(varName).replace('ms',''));
-}
-function randDelay(){
-  const BASE_DELAY = getCSSms('--type-base-delay');
-  const JITTER = getCSSms('--type-jitter');
-  return BASE_DELAY + Math.floor(Math.random()*JITTER);
-}
 
 const LINES = [
   "Их много,",
@@ -311,183 +301,148 @@ const LINES = [
   "Не рви их."
 ];
 
-const LINE_PAUSE = getCSSms('--line-pause');
-const LINE_OFFCENTER = getCSSValue('--line-offcenter');
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v);}
 
-const typewriter = document.getElementById('typewriter');
+const BASE = parseInt(css('--type-base-delay'));
+const JITTER = parseInt(css('--type-jitter'));
+const PAUSE = parseInt(css('--line-pause'));
+
+const tw = document.getElementById('typewriter');
 const cursor = document.getElementById('cursor');
-const arrowLayer = document.getElementById('arrowLayer');
-const arrowLine = document.getElementById('arrowLine');
-const authPanel = document.getElementById('authPanel');
-const errorBox = document.getElementById('errorMessage');
 
-let lineIndex = 0, charIndex = 0;
-let currentSpan = null;
+let line=0, char=0;
+let spans=[];
 
-
-/* =====================================================================
-   ZEILENSPAN – mit zentrierter + offcenter Position, Variante B
-   ===================================================================== */
-function newLineSpan(){
-  const span = document.createElement('span');
-  span.className = 'tw-line';
-
-  const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-  const offsetCH = parseFloat(LINE_OFFCENTER);
-  const pixelOffset = offsetCH * rootFontSize;
-
-  span.style.display = "block";
-  span.style.position = "relative";
-  span.dataset.offset = pixelOffset;
-  span.style.transform = `translateX(${((lineIndex % 2 === 0) ? 1 : -1) * pixelOffset}px)`;
-
-  typewriter.insertBefore(span, cursor);
-  return span;
+function measure(text){
+  const tmp=document.createElement("span");
+  tmp.style.visibility="hidden";
+  tmp.style.position="absolute";
+  tmp.style.fontFamily=css('--mono');
+  tmp.style.fontSize="1.1rem";
+  tmp.style.whiteSpace="pre";
+  tmp.textContent=text;
+  document.body.appendChild(tmp);
+  const w=tmp.getBoundingClientRect().width;
+  tmp.remove();
+  return w;
 }
 
+function newLine(i){
+  const s=document.createElement('span');
+  s.className="tw-line";
 
-/* =====================================================================
-/* === OFFSET der Zeilen === */
-/* Werte von dir: 3 – 0 – 1 – 4 */
-const offsets = [3, 0, 1, 4];
+  const base=parseFloat(css('--line-offcenter'));
 
-const lines = [
-  "Их много,",
-  "они сплитены",
-  "и наравят порваться.",
-  "Не рви их."
-];
+  const off = (i===0?3*base : i===1?0 : i===2?1*base : 4*base);
+  s.style.setProperty('--offset', off+"ch");
 
-const typed = document.getElementById("typed");
-const cursor = document.getElementById("cursor");
-const arrow = document.getElementById("arrow");
+  tw.insertBefore(s, cursor);
+  spans[i]=s;
+}
 
-let lineIndex = 0;
-let charIndex = 0;
+function cursorFollow(){
+  const s=spans[line];
+  const rect=s.getBoundingClientRect();
+  const twr=tw.getBoundingClientRect();
+  const txt=s.textContent;
 
-/* === Geschwindigkeit des Tippens (anpassbar) === */
-function delay() { return Math.floor(Math.random() * '--type-base-delay') + '--type-jitter'; }
+  cursor.style.top = s.offsetTop+"px";
+  cursor.style.left = (rect.left - twr.left + measure(txt))+"px";
+}
 
-function typeWriter() {
-  const line = lines[lineIndex];
+function d(){return BASE + Math.random()*JITTER;}
 
-  /* Cursor vor den Text setzen */
-  cursor.style.transform = "translateX(" + (offsets[lineIndex] * '--cursor-width') + "rem)";
+function type(){
+  if(line>=LINES.length){ finishTyping(); return; }
 
-  if (charIndex < line.length) {
-    if (charIndex === 0) {
-      typed.textContent += " ".repeat(offsets[lineIndex]);
-    }
+  if(!spans[line]) newLine(line);
 
-    typed.textContent += line[charIndex];
-    charIndex++;
-    setTimeout(typeWriter, delay());
+  const t=LINES[line];
+  const s=spans[line];
+
+  if(char < t.length){
+    s.textContent += t[char++];
+    cursorFollow();
+    setTimeout(type, d());
   } else {
-    lineIndex++;
-    charIndex = 0;
+    line++; char=0;
+    if(line<LINES.length){
+      newLine(line);
+      setTimeout(type, PAUSE);
+    } else finishTyping();
+  }
+}
 
-    if (lineIndex < lines.length) {
-      typed.textContent += "\n";
-      setTimeout(typeWriter, '--line-pause');
-    } else {
-      cursor.style.opacity = 1;
-      cursor.style.animation = "blink '--cursor-blink' infinite";
-     
 /* ================================================================
    ⬇️ PFEIL
    ================================================================ */
+const arrowLayer=document.getElementById('arrowLayer');
+const arrowLine=document.getElementById('arrowLine');
+const authPanel=document.getElementById('authPanel');
 
-   /* =====================================================================
-   PFEIL – wird gezeichnet und bleibt stehen, bis man das Input fokussiert
-   ===================================================================== */
 function drawArrow(){
-  const twRect = typewriter.getBoundingClientRect();
+  const twRect = tw.getBoundingClientRect();
   const authRect = authPanel.getBoundingClientRect();
-  const gap = parseFloat(getCSSValue('--arrow-gap')) || 10;
+  const gap = parseFloat(css('--arrow-gap'));
 
-  const startX = Math.round(twRect.left + twRect.width/2);
-  const startY = Math.round(twRect.bottom + 6);
-  const endX   = startX;
-  const endY   = Math.round(authRect.top - gap);
+  const x = Math.round(twRect.left + twRect.width/2);
+  const y1 = Math.round(twRect.bottom + 8);
+  const y2 = Math.round(authRect.top - gap);
 
-  arrowLine.setAttribute('x1', startX);
-  arrowLine.setAttribute('y1', startY);
-  arrowLine.setAttribute('x2', endX);
-  arrowLine.setAttribute('y2', endY);
+  arrowLine.setAttribute("x1",x);
+  arrowLine.setAttribute("y1",y1);
+  arrowLine.setAttribute("x2",x);
+  arrowLine.setAttribute("y2",y2);
 
-  const len = Math.hypot(endX-startX, endY-startY);
-  arrowLine.style.strokeDasharray = String(len);
-  arrowLine.style.strokeDashoffset = String(len);
+  const len=Math.abs(y2-y1);
+  arrowLine.style.strokeDasharray=len;
+  arrowLine.style.strokeDashoffset=len;
 }
 
 function revealArrow(){
-  arrowLayer.classList.add('show');
-  requestAnimationFrame(()=> {
-    arrowLine.classList.add('drawn');
-  });
+  arrowLayer.classList.add("show");
+  requestAnimationFrame(()=> arrowLine.classList.add("drawn"));
 }
 
-// ✅ Fade-out NUR wenn man auf das Feld tippt
-document.getElementById('passwordInput').addEventListener('focus', ()=>{
- // arrowLayer.style.transition = "opacity 900ms ease";
-  arrowLayer.style.transform = "translateY(20px)";
-  arrowLayer.style.opacity = "0";
-});
-
-
-/* =====================================================================
-   NACH DEM TIPPEN
-   ===================================================================== */
-function afterTyping(){
-  adjustCursor();
-  revealArrow();
+function finishTyping(){
   drawArrow();
-  window.addEventListener('resize', ()=> drawArrow());
+  revealArrow();
+  window.addEventListener('resize', drawArrow);
 }
-   
-/* ================================================================
-   🚀 START
-   ================================================================ */
-window.addEventListener('load', ()=>{
-  adjustCursor();
-  typeNext();
-});
 
 /* ================================================================
    🔐 LOGIN
    ================================================================ */
 
-const correctPassword = "нити";
-
-function showError(msg){
-  errorBox.innerHTML = msg;
-  errorBox.style.opacity = 1;
-}
-function hideError(){
-  errorBox.style.opacity = 0;
-}
+const correctPassword="нити";
 
 function checkPassword(){
-  const input = document.getElementById('passwordInput');
-  hideError();
+  const input=document.getElementById('passwordInput');
+  const msg=document.getElementById('errorMessage');
+  msg.style.opacity=0;
 
-  if(input.value === correctPassword){
-    document.getElementById('content').style.display = 'block';
-    authPanel.style.display = 'none';
-    arrowLayer.style.display = 'none';
+  if(input.value===correctPassword){
+    document.getElementById('content').style.display='block';
+    authPanel.style.display='none';
+    arrowLayer.style.display='none';
     sendVisitNotification();
   } else {
-    showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
-    input.value = '';
+    msg.innerHTML="Неверный пароль<br>русскими, маленькими буквами, во множественном числе";
+    msg.style.opacity=1;
+    input.value='';
     input.focus();
   }
 }
 
-document.getElementById('loginBtn').addEventListener('click', checkPassword);
-document.getElementById('passwordInput').addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter') checkPassword();
+document.getElementById('loginBtn').onclick = checkPassword;
+document.getElementById('passwordInput').addEventListener('keydown',e=>{
+  if(e.key==="Enter") checkPassword();
 });
 
+/* Pfeil verschwindet beim Fokussieren */
+document.getElementById('passwordInput').addEventListener('focus',()=>{
+  arrowLayer.style.display="none";
+});
 
 /* ================================================================
    🖼️ BILDER
@@ -509,6 +464,10 @@ function sendVisitNotification(){
   fetch('/api/notify',{method:"POST"});
 }
 
+/* ================================================================
+   🚀 START
+   ================================================================ */
+window.onload = ()=> type();
 
 </script>
 </body>
