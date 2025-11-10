@@ -11,8 +11,8 @@
    🌙 STELLSCHRAUBEN (hier kannst du alles nach Wunsch anpassen!)
    ===================================================================== */
 :root{
-  --type-base-delay: 100ms;     /* Grundtempo des Tippens */
-  --type-jitter: 150ms;         /* Zufällige Zusatzwartezeit */
+  --type-base-delay: 120ms;     /* Grundtempo des Tippens */
+  --type-jitter: 80ms;         /* Zufällige Zusatzwartezeit */
   --line-pause: 420ms;          /* Pause zwischen Zeilen */
 
   --cursor-width: 0.7ch;        /* Dicke des Cursors */
@@ -347,64 +347,51 @@ function newLineSpan(){
 
 
 /* =====================================================================
-   CURSOR an sichtbare, gerenderte Textposition koppeln
-   ===================================================================== */
-function updateCursorPosition(){
-  if(!currentSpan) return;
+/* === OFFSET der Zeilen === */
+/* Werte von dir: 3 – 0 – 1 – 4 */
+const offsets = [3, 0, 1, 4];
 
-  const spanRect = currentSpan.getBoundingClientRect();
-  const twRect = typewriter.getBoundingClientRect();
+const lines = [
+  "Их много,",
+  "они сплитены",
+  "и наравят порваться.",
+  "Не рви их."
+];
 
-  const x = spanRect.left + spanRect.width;
-  const y = spanRect.top;
+const typed = document.getElementById("typed");
+const cursor = document.getElementById("cursor");
+const arrow = document.getElementById("arrow");
 
-  cursor.style.position = "fixed";
-  cursor.style.left = x + "px";
-  cursor.style.top = y + "px";
-}
+let lineIndex = 0;
+let charIndex = 0;
 
+/* === Geschwindigkeit des Tippens (anpassbar) === */
+function delay() { return Math.floor(Math.random() * '--type-base-delay') + '--type-jitter'; }
 
-/* =====================================================================
-   TYPING ENGINE – Cursor folgt genau dem Text
-   ===================================================================== */
-function typeNext(){
-  if(lineIndex >= LINES.length){
-    afterTyping();
-    return;
-  }
+function typeWriter() {
+  const line = lines[lineIndex];
 
-  if(!currentSpan){
-    currentSpan = newLineSpan();
-  }
+  /* Cursor vor den Text setzen */
+  cursor.style.transform = "translateX(" + (offsets[lineIndex] * '--cursor-width') + "rem)";
 
-  const line = LINES[lineIndex];
+  if (charIndex < line.length) {
+    if (charIndex === 0) {
+      typed.textContent += " ".repeat(offsets[lineIndex]);
+    }
 
-  if(charIndex < line.length){
-    currentSpan.textContent += line.charAt(charIndex++);
-    updateCursorPosition();
-    setTimeout(typeNext, randDelay());
+    typed.textContent += line[charIndex];
+    charIndex++;
+    setTimeout(typeWriter, delay());
   } else {
     lineIndex++;
     charIndex = 0;
-    currentSpan = null;
 
-    if(lineIndex < LINES.length){
-      setTimeout(typeNext, LINE_PAUSE);
+    if (lineIndex < lines.length) {
+      typed.textContent += "\n";
+      setTimeout(typeWriter, '--line-pause');
     } else {
-      afterTyping();
-    }
-  }
-}
-
-
-/* =====================================================================
-   Cursorhöhe an Zeilenhöhe anpassen
-   ===================================================================== */
-function adjustCursor(){
-  const lh = parseFloat(getComputedStyle(typewriter).lineHeight);
-  cursor.style.height = lh + "px";
-}
-
+      cursor.style.opacity = 1;
+      cursor.style.animation = "blink '--cursor-blink' infinite";
      
 /* ================================================================
    ⬇️ PFEIL
@@ -442,7 +429,8 @@ function revealArrow(){
 
 // ✅ Fade-out NUR wenn man auf das Feld tippt
 document.getElementById('passwordInput').addEventListener('focus', ()=>{
-  arrowLayer.style.transition = "opacity 900ms ease";
+ // arrowLayer.style.transition = "opacity 900ms ease";
+  arrowLayer.style.transform = "translateY(20px)";
   arrowLayer.style.opacity = "0";
 });
 
@@ -452,8 +440,8 @@ document.getElementById('passwordInput').addEventListener('focus', ()=>{
    ===================================================================== */
 function afterTyping(){
   adjustCursor();
-  drawArrow();
   revealArrow();
+  drawArrow();
   window.addEventListener('resize', ()=> drawArrow());
 }
    
