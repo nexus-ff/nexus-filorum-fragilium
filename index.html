@@ -137,28 +137,31 @@
 
     /* ====== Pfeil-Layer ====== */
     .arrow-layer{
-      position: fixed;
-      inset: 0;                 /* deckt Viewport ab */
-      pointer-events: none;
-      z-index: 5;               /* unter dem Loginpanel */
-      opacity: 0;               /* start unsichtbar */
-      transition: opacity var(--arrow-fade) ease;
-    }
-    .arrow-layer.show{ opacity:1; }
-    .arrow{
-      stroke: #000;
-      stroke-width: var(--arrow-stroke);
-      fill: none;
-      marker-end: url(#arrowhead);  /* geschlossene, gefüllte Spitze */
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      stroke-dasharray: 1;
-      stroke-dashoffset: 1;         /* Start: vollständig “versteckt” */
-      transition: stroke-dashoffset var(--arrow-reveal) ease-out;
-    }
-    .arrow.drawn{ stroke-dashoffset: 0; }
-    .arrow-layer.hide{ opacity:0; transition: opacity .35s ease; } /* Wegfaden beim Fokus */
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0; /* Start unsichtbar */
+}
 
+.arrow{
+  stroke: #000;
+  stroke-width: var(--arrow-stroke);
+  fill: none;
+  marker-end: url(#arrowhead);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.arrow-layer.hide{
+  opacity: 0; /* Fade-Out */
+}
+
+marker#arrowhead path{
+  fill: #000; 
+  stroke: #000;
+    }
+    
     /* ====== Geschützter Inhalt ====== */
     #content{
       display:none;
@@ -305,10 +308,10 @@
 
     // Zeileninhalt
     const LINES = [
-      "Их много,",
-      "они сплитены",
+      "   Их много,",
+      "  они сплитены",
       "и наравят порваться.",
-      "Не рви их."
+      "    Не рви их."
     ];
 
     // Versatz-Multiplikatoren pro Zeile (relativ zur CSS-Var --line-offcenter)
@@ -405,51 +408,48 @@
     }
 
     /* =========================
-       PFEIL zeichnen & steuern
-       ========================= */
-    const arrowLayer = document.getElementById('arrowLayer');
-    const arrowLine  = document.getElementById('arrowLine');
-    const authPanel  = document.getElementById('authPanel');
+   PFEIL: Fade-In & Fade-Out
+   ========================= */
+const arrowLayer = document.getElementById('arrowLayer');
+const arrowLine  = document.getElementById('arrowLine');
+const authPanel  = document.getElementById('authPanel');
 
-    function drawArrow(){
-      const twRect   = typewriter.getBoundingClientRect();
-      const authRect = authPanel.getBoundingClientRect();
-      const gap = parseFloat(cssStr('--arrow-gap')) || 14;
+function drawArrow(){
+  const twRect   = typewriter.getBoundingClientRect();
+  const authRect = authPanel.getBoundingClientRect();
+  const gap = parseFloat(cssStr('--arrow-gap')) || 14;
 
-      // mittig relativ zur Seite (Viewport), von Text unten nach oben des Inputs
-      const startX = Math.round(twRect.left + twRect.width/2);
-      const startY = Math.round(twRect.bottom + 6);       // kleiner Abstand unter dem Text
-      const endX   = startX;
-      const endY   = Math.round(authRect.top - gap);      // knapp über dem Input
+  const startX = Math.round(twRect.left + twRect.width/2);
+  const startY = Math.round(twRect.bottom + 6);
+  const endX   = startX;
+  const endY   = Math.round(authRect.top - gap);
 
-      arrowLine.setAttribute('x1', startX);
-      arrowLine.setAttribute('y1', startY);
-      arrowLine.setAttribute('x2', endX);
-      arrowLine.setAttribute('y2', endY);
+  arrowLine.setAttribute('x1', startX);
+  arrowLine.setAttribute('y1', startY);
+  arrowLine.setAttribute('x2', endX);
+  arrowLine.setAttribute('y2', endY);
+}
 
-      // Länge der Linie für "Zeichen"-Animation von oben → unten
-      const len = Math.hypot(endX-startX, endY-startY);
-      arrowLine.style.strokeDasharray = String(len);
-      arrowLine.style.strokeDashoffset = String(len);
-    }
+/* ✅ Pfeil langsam einblenden */
+function revealArrow(){
+  arrowLayer.style.opacity = "0";
+  arrowLayer.style.transition = "opacity var(--arrow-fade) ease";
+  requestAnimationFrame(() => {
+    arrowLayer.style.opacity = "1";   // Fade-In
+  });
+}
 
-    function revealArrow(){
-      arrowLayer.classList.add('show');
-      requestAnimationFrame(() => {
-      arrowLine.classList.add('drawn');
-      });
-    }
+/* ✅ Beim Klick → weich ausblenden */
+function fadeOutArrow(){
+  arrowLayer.style.opacity = "0";     // Fade-Out
+}
 
-    // Beim Klick/Fokus auf das Eingabefeld den Pfeil wegfaden lassen
-    function fadeOutArrow(){
-      arrowLayer.classList.add('hide'); // CSS blendet mit kurzer Dauer aus
-    }
-
-    function afterTyping(){
-      drawArrow();
-      revealArrow();
-      window.addEventListener('resize', drawArrow, { passive:true });
-    }
+/* Wird nach dem letzten Tippvorgang aufgerufen */
+function afterTyping(){
+  drawArrow();
+  revealArrow();
+  window.addEventListener('resize', drawArrow, { passive:true });
+}
 
     // Start der Typewriter-Animation
     window.addEventListener('load', ()=>{
