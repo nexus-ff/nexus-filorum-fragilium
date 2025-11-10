@@ -284,9 +284,25 @@ img:hover{transform:scale(1.03);}
 </div>
 
 <script>
+   
 /* ================================================================
    ✒️ TYPEWRITER MIT LIVE-FOLGENDEM CURSOR
    ================================================================ */
+
+/* =======================
+   Hilfsfunktionen
+   ======================= */
+function getCSSValue(varName){
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+function getCSSms(varName){
+  return Number(getCSSValue(varName).replace('ms',''));
+}
+function randDelay(){
+  const BASE_DELAY = getCSSms('--type-base-delay');
+  const JITTER = getCSSms('--type-jitter');
+  return BASE_DELAY + Math.floor(Math.random()*JITTER);
+}
 
 const LINES = [
   "Их много,",
@@ -295,148 +311,195 @@ const LINES = [
   "Не рви их."
 ];
 
-function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v);}
+const LINE_PAUSE = getCSSms('--line-pause');
+const LINE_OFFCENTER = getCSSValue('--line-offcenter');
 
-const BASE = parseInt(css('--type-base-delay'));
-const JITTER = parseInt(css('--type-jitter'));
-const PAUSE = parseInt(css('--line-pause'));
-
-const tw = document.getElementById('typewriter');
+const typewriter = document.getElementById('typewriter');
 const cursor = document.getElementById('cursor');
+const arrowLayer = document.getElementById('arrowLayer');
+const arrowLine = document.getElementById('arrowLine');
+const authPanel = document.getElementById('authPanel');
+const errorBox = document.getElementById('errorMessage');
 
-let line=0, char=0;
-let spans=[];
+let lineIndex = 0, charIndex = 0;
+let currentSpan = null;
 
-function measure(text){
-  const tmp=document.createElement("span");
-  tmp.style.visibility="hidden";
-  tmp.style.position="absolute";
-  tmp.style.fontFamily=css('--mono');
-  tmp.style.fontSize="1.1rem";
-  tmp.style.whiteSpace="pre";
-  tmp.textContent=text;
-  document.body.appendChild(tmp);
-  const w=tmp.getBoundingClientRect().width;
-  tmp.remove();
-  return w;
+
+/* =====================================================================
+   ZEILENSPAN – mit zentrierter + offcenter Position, Variante B
+   ===================================================================== */
+function newLineSpan(){
+  const span = document.createElement('span');
+  span.className = 'tw-line';
+
+  const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const offsetCH = parseFloat(LINE_OFFCENTER);
+  const pixelOffset = offsetCH * rootFontSize;
+
+  span.style.display = "block";
+  span.style.position = "relative";
+  span.dataset.offset = pixelOffset;
+  span.style.transform = `translateX(${((lineIndex % 2 === 0) ? 1 : -1) * pixelOffset}px)`;
+
+  typewriter.insertBefore(span, cursor);
+  return span;
 }
 
-function newLine(i){
-  const s=document.createElement('span');
-  s.className="tw-line";
 
-  const base=parseFloat(css('--line-offcenter'));
+/* =====================================================================
+   CURSOR an sichtbare, gerenderte Textposition koppeln
+   ===================================================================== */
+function updateCursorPosition(){
+  if(!currentSpan) return;
 
-  const off = (i===0?3*base : i===1?0 : i===2?1*base : 4*base);
-  s.style.setProperty('--offset', off+"ch");
+  const spanRect = currentSpan.getBoundingClientRect();
+  const twRect = typewriter.getBoundingClientRect();
 
-  tw.insertBefore(s, cursor);
-  spans[i]=s;
+  const x = spanRect.left + spanRect.width;
+  const y = spanRect.top;
+
+  cursor.style.position = "fixed";
+  cursor.style.left = x + "px";
+  cursor.style.top = y + "px";
 }
 
-function cursorFollow(){
-  const s=spans[line];
-  const rect=s.getBoundingClientRect();
-  const twr=tw.getBoundingClientRect();
-  const txt=s.textContent;
 
-  cursor.style.top = s.offsetTop+"px";
-  cursor.style.left = (rect.left - twr.left + measure(txt))+"px";
-}
+/* =====================================================================
+   TYPING ENGINE – Cursor folgt genau dem Text
+   ===================================================================== */
+function typeNext(){
+  if(lineIndex >= LINES.length){
+    afterTyping();
+    return;
+  }
 
-function d(){return BASE + Math.random()*JITTER;}
+  if(!currentSpan){
+    currentSpan = newLineSpan();
+  }
 
-function type(){
-  if(line>=LINES.length){ finishTyping(); return; }
+  const line = LINES[lineIndex];
 
-  if(!spans[line]) newLine(line);
-
-  const t=LINES[line];
-  const s=spans[line];
-
-  if(char < t.length){
-    s.textContent += t[char++];
-    cursorFollow();
-    setTimeout(type, d());
+  if(charIndex < line.length){
+    currentSpan.textContent += line.charAt(charIndex++);
+    updateCursorPosition();
+    setTimeout(typeNext, randDelay());
   } else {
-    line++; char=0;
-    if(line<LINES.length){
-      newLine(line);
-      setTimeout(type, PAUSE);
-    } else finishTyping();
+    lineIndex++;
+    charIndex = 0;
+    currentSpan = null;
+
+    if(lineIndex < LINES.length){
+      setTimeout(typeNext, LINE_PAUSE);
+    } else {
+      afterTyping();
+    }
   }
 }
 
+
+/* =====================================================================
+   Cursorhöhe an Zeilenhöhe anpassen
+   ===================================================================== */
+function adjustCursor(){
+  const lh = parseFloat(getComputedStyle(typewriter).lineHeight);
+  cursor.style.height = lh + "px";
+}
+
+     
 /* ================================================================
    ⬇️ PFEIL
    ================================================================ */
-const arrowLayer=document.getElementById('arrowLayer');
-const arrowLine=document.getElementById('arrowLine');
-const authPanel=document.getElementById('authPanel');
 
+   /* =====================================================================
+   PFEIL – wird gezeichnet und bleibt stehen, bis man das Input fokussiert
+   ===================================================================== */
 function drawArrow(){
-  const twRect = tw.getBoundingClientRect();
+  const twRect = typewriter.getBoundingClientRect();
   const authRect = authPanel.getBoundingClientRect();
-  const gap = parseFloat(css('--arrow-gap'));
+  const gap = parseFloat(getCSSValue('--arrow-gap')) || 10;
 
-  const x = Math.round(twRect.left + twRect.width/2);
-  const y1 = Math.round(twRect.bottom + 8);
-  const y2 = Math.round(authRect.top - gap);
+  const startX = Math.round(twRect.left + twRect.width/2);
+  const startY = Math.round(twRect.bottom + 6);
+  const endX   = startX;
+  const endY   = Math.round(authRect.top - gap);
 
-  arrowLine.setAttribute("x1",x);
-  arrowLine.setAttribute("y1",y1);
-  arrowLine.setAttribute("x2",x);
-  arrowLine.setAttribute("y2",y2);
+  arrowLine.setAttribute('x1', startX);
+  arrowLine.setAttribute('y1', startY);
+  arrowLine.setAttribute('x2', endX);
+  arrowLine.setAttribute('y2', endY);
 
-  const len=Math.abs(y2-y1);
-  arrowLine.style.strokeDasharray=len;
-  arrowLine.style.strokeDashoffset=len;
+  const len = Math.hypot(endX-startX, endY-startY);
+  arrowLine.style.strokeDasharray = String(len);
+  arrowLine.style.strokeDashoffset = String(len);
 }
 
 function revealArrow(){
-  arrowLayer.classList.add("show");
-  requestAnimationFrame(()=> arrowLine.classList.add("drawn"));
+  arrowLayer.classList.add('show');
+  requestAnimationFrame(()=> {
+    arrowLine.classList.add('drawn');
+  });
 }
 
-function finishTyping(){
+// ✅ Fade-out NUR wenn man auf das Feld tippt
+document.getElementById('passwordInput').addEventListener('focus', ()=>{
+  arrowLayer.style.transition = "opacity 900ms ease";
+  arrowLayer.style.opacity = "0";
+});
+
+
+/* =====================================================================
+   NACH DEM TIPPEN
+   ===================================================================== */
+function afterTyping(){
+  adjustCursor();
   drawArrow();
   revealArrow();
-  window.addEventListener('resize', drawArrow);
+  window.addEventListener('resize', ()=> drawArrow());
 }
+   
+/* ================================================================
+   🚀 START
+   ================================================================ */
+window.addEventListener('load', ()=>{
+  adjustCursor();
+  typeNext();
+});
 
 /* ================================================================
    🔐 LOGIN
    ================================================================ */
 
-const correctPassword="нити";
+const correctPassword = "нити";
+
+function showError(msg){
+  errorBox.innerHTML = msg;
+  errorBox.style.opacity = 1;
+}
+function hideError(){
+  errorBox.style.opacity = 0;
+}
 
 function checkPassword(){
-  const input=document.getElementById('passwordInput');
-  const msg=document.getElementById('errorMessage');
-  msg.style.opacity=0;
+  const input = document.getElementById('passwordInput');
+  hideError();
 
-  if(input.value===correctPassword){
-    document.getElementById('content').style.display='block';
-    authPanel.style.display='none';
-    arrowLayer.style.display='none';
+  if(input.value === correctPassword){
+    document.getElementById('content').style.display = 'block';
+    authPanel.style.display = 'none';
+    arrowLayer.style.display = 'none';
     sendVisitNotification();
   } else {
-    msg.innerHTML="Неверный пароль<br>русскими, маленькими буквами, во множественном числе";
-    msg.style.opacity=1;
-    input.value='';
+    showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
+    input.value = '';
     input.focus();
   }
 }
 
-document.getElementById('loginBtn').onclick = checkPassword;
-document.getElementById('passwordInput').addEventListener('keydown',e=>{
-  if(e.key==="Enter") checkPassword();
+document.getElementById('loginBtn').addEventListener('click', checkPassword);
+document.getElementById('passwordInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') checkPassword();
 });
 
-/* Pfeil verschwindet beim Fokussieren */
-document.getElementById('passwordInput').addEventListener('focus',()=>{
-  arrowLayer.style.display="none";
-});
 
 /* ================================================================
    🖼️ BILDER
@@ -458,10 +521,6 @@ function sendVisitNotification(){
   fetch('/api/notify',{method:"POST"});
 }
 
-/* ================================================================
-   🚀 START
-   ================================================================ */
-window.onload = ()=> type();
 
 </script>
 </body>
