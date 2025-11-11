@@ -6,7 +6,7 @@
   <title>nexus filorium fragilium</title>
   <style>
     /* =====================================================================
-       🌙 STELLSCHRAUBEN (hier kannst du alles nach Wunsch anpassen!)
+       STELLSCHRAUBEN (hier kannst du alles nach Wunsch anpassen!)
        ===================================================================== */
     :root{
       --type-base-delay: 90ms;     /* Grundtempo des Tippens */
@@ -143,39 +143,41 @@
     /* ———————————————
    ✅ Lauftext-Banner (Marquee-Ersatz)
    ——————————————— */
+/* ———————————————
+   ✅ Fixer schwarzer Balken über ganze Breite
+   ✅ Weißer Text läuft von rechts nach links durch
+   ——————————————— */
 #banner-wrap {
   position: fixed;
-  top: 6vh;                   /* Abstand oben → kannst du anpassen */
+  top: 6vh;                     /* Abstand vom oberen Rand */
   left: 0;
   width: 100%;
-  overflow: hidden;
-  z-index: 50;                /* über allem außer Login */
-  pointer-events: none;       /* klickt nicht anhindern */
+  background: #000;             /* schwarzer Balken */
+  padding: 10px 0;
+  z-index: 50;
+  overflow: hidden;             /* Schrift bleibt im Balken */
+  pointer-events: none;
 }
 
+/* Der Text selbst */
 #banner {
   display: inline-block;
-  padding: 8px 18px;
-  background: #000;           /* schwarzer Hintergrund */
-  color: #fff;                /* weiße Schrift */
+  white-space: nowrap;
   font-family: "Courier New", monospace;
   font-size: 1.1rem;
-  white-space: nowrap;
-  transform: translateX(100%); /* Start: komplett rechts außerhalb */
-  animation: bannerSlide var(--banner-speed, 12s) linear infinite;
+  color: #fff;
+  padding-left: 100%;           /* startet komplett rechts außerhalb */
+  animation: bannerScroll var(--banner-speed, 12s) linear infinite;
   animation-delay: var(--banner-delay, 1s);
 }
 
-/* Animation rechts → links */
-@keyframes bannerSlide {
+/* Laufanimation */
+@keyframes bannerScroll {
   0% {
-    transform: translateX(100%);
-  }
-  80% {
-    transform: translateX(-110%); /* komplett raus */
+    transform: translateX(0);       /* Start rechts außerhalb */
   }
   100% {
-    transform: translateX(-110%);
+    transform: translateX(-200%);   /* weit links raus fahren */
   }
 }
 
