@@ -30,9 +30,9 @@
       --page-max: 650px;
       --page-pad: 20px;
       
-      --banner-speed: 14s;          /* Dauer eines Durchlaufs (größer = langsamer) */
-      --banner-delay: 2.5s;         /* Pause, bevor er wieder reinfährt */
-      
+      --banner-speed: 16s;          /* Dauer eines Durchlaufs (größer = langsamer) */
+      --banner-delay: 1.5s;         /* Pause, bevor er wieder reinfährt */
+      --banner-fade: 700ms;         /* Einblend-Geschwindigkeit */
 
       --mono: "Courier New","Lucida Console",monospace;
     }
@@ -154,9 +154,12 @@
   width: 100%;
   background: #000;             /* schwarzer Balken */
   padding: 10px 0;
+  margin-top: 18px;             /* Abstand unter dem Typewriter */
   z-index: 50;
   overflow: hidden;             /* Schrift bleibt im Balken */
   pointer-events: none;
+  position: relative;           /* sorgt dafür, dass er sich korrekt mitbewegt */
+  transition: opacity var(--banner-fade) ease-out;
 }
 
 /* Der Text selbst */
@@ -285,7 +288,7 @@ marker#arrowhead path{
     <div id="content">
       <!-- Laufender Satz -->
 <div id="banner-wrap">
-  <div id="banner">Н е   р в и   -   а   р а с п у т ы в а й</div>
+  <div id="banner">Н е . . р в и . . - . . а . . р а с п у т ы в а й</div>
 </div>
 
       <div class="letter"><br><br><em><strong>НИТИ</strong>
