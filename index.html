@@ -29,6 +29,10 @@
 
       --page-max: 650px;
       --page-pad: 20px;
+      
+      --banner-speed: 14s;          /* Dauer eines Durchlaufs (größer = langsamer) */
+      --banner-delay: 2.5s;         /* Pause, bevor er wieder reinfährt */
+      
 
       --mono: "Courier New","Lucida Console",monospace;
     }
@@ -136,6 +140,45 @@
       pointer-events: none;
     }
 
+    /* ———————————————
+   ✅ Lauftext-Banner (Marquee-Ersatz)
+   ——————————————— */
+#banner-wrap {
+  position: fixed;
+  top: 6vh;                   /* Abstand oben → kannst du anpassen */
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  z-index: 50;                /* über allem außer Login */
+  pointer-events: none;       /* klickt nicht anhindern */
+}
+
+#banner {
+  display: inline-block;
+  padding: 8px 18px;
+  background: #000;           /* schwarzer Hintergrund */
+  color: #fff;                /* weiße Schrift */
+  font-family: "Courier New", monospace;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  transform: translateX(100%); /* Start: komplett rechts außerhalb */
+  animation: bannerSlide var(--banner-speed, 12s) linear infinite;
+  animation-delay: var(--banner-delay, 1s);
+}
+
+/* Animation rechts → links */
+@keyframes bannerSlide {
+  0% {
+    transform: translateX(100%);
+  }
+  80% {
+    transform: translateX(-110%); /* komplett raus */
+  }
+  100% {
+    transform: translateX(-110%);
+  }
+}
+
     /* ====== Pfeil-Layer ====== */
     .arrow-layer{
   position: fixed;
@@ -238,9 +281,12 @@ marker#arrowhead path{
 
     <!-- ====== GESCHÜTZTER INHALT ====== -->
     <div id="content">
-      <h2>Не рви - а распутывай</h2>
+      <!-- Laufender Satz -->
+<div id="banner-wrap">
+  <div id="banner">Н е   р в и   -   а   р а с п у т ы в а й</div>
+</div>
 
-      <div class="letter"><em><strong>НИТИ</strong>
+      <div class="letter"><br><br><em><strong>НИТИ</strong>
 
 Внезапное призрение
 - В голову бьют подозрения
