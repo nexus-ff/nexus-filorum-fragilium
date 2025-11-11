@@ -30,8 +30,8 @@
       --page-max: 650px;
       --page-pad: 20px;
       
-      --banner-speed: 16s;          /* Dauer eines Durchlaufs (größer = langsamer) */
-      --banner-delay: 1.5s;         /* Pause, bevor er wieder reinfährt */
+      --banner-speed: 12s;          /* Dauer eines Durchlaufs (größer = langsamer) */
+      --banner-delay: 30ms;         /* Pause, bevor er wieder reinfährt */
       --banner-fade: 700ms;         /* Einblend-Geschwindigkeit */
 
       --mono: "Courier New","Lucida Console",monospace;
@@ -150,8 +150,11 @@
 #banner-wrap {
   position: fixed;
   top: 6vh;                     /* Abstand vom oberen Rand */
-  left: 0;
-  width: 100%;
+  left: 50%;
+  right: 50%;
+  width: 100vw;
+  margin-left: -50vw;           /* trick → zentriert 100vw relativ zur Seite */
+  margin-right: -50vw;
   background: #000;             /* schwarzer Balken */
   padding: 10px 0;
   margin-top: 18px;             /* Abstand unter dem Typewriter */
