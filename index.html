@@ -613,26 +613,78 @@ function afterTyping(){
     pwdInput.addEventListener('focus', fadeOutArrow);
     pwdInput.addEventListener('click', fadeOutArrow);
 
-    /* =========================
-       BILDER: Hover + Klick
-       ========================= */
-    const img = document.getElementById('mainImage');
-    let toggled = false;
-    if(img){
-      img.addEventListener('mouseenter', () => { img.src = 'image/IMG_20251029_213356_289.jpg'; });
-      img.addEventListener('mouseleave', () => { if(!toggled) img.src = 'image/IMG_8462.JPG'; });
-      img.addEventListener('click', () => {
-        toggled = !toggled;
-        img.src = toggled ? 'image/IMG_20251029_213356_289.jpg' : 'image/IMG_8462.JPG';
+    /* ====== CYCLING-IMAGE FADER ====== */
+document.querySelectorAll('.cycle').forEach(img => {
+  const imgs = JSON.parse(img.dataset.images);
+  let index = 0;
+
+  img.addEventListener('click', () => {
+    img.style.opacity = 0;          // ausfaden
+    setTimeout(() => {
+      index = (index + 1) % imgs.length;
+      img.src = imgs[index];
+      img.style.opacity = 1;        // einfaden
+    }, 250); // halb der Übergangsdauer
+  });
+});
+
+/* =======================================================
+   🔊 AUTO-MUSIC BEIM ERSTEN KLICK + SANFTES FADE-IN
+   ======================================================= */
+
+// Musik vorbereiten (aber noch nicht starten)
+const bgMusic = new Audio("image/music.mp3");
+bgMusic.loop = true;        // Musik in Dauerschleife
+
+let musicStarted = false;   // Musik wurde noch nicht gestartet
+let fadeInterval = null;    // Referenz für Fade-In Intervall
+
+// 🔧 HIER kannst du die maximale Lautstärke einstellen
+const TARGET_VOLUME = 0.45;     // z. B. 0.1 (leise) – 1.0 (laut)
+const FADE_TIME = 2500;         // Dauer des Fade-In in Millisekunden
+const FADE_STEPS = 40;          // Anzahl Zwischenschritte für den Fade-In
+
+// Musik sanft einblenden
+function fadeInMusic() {
+  bgMusic.volume = 0;  // Start bei 0
+  let step = TARGET_VOLUME / FADE_STEPS;
+  let counter = 0;
+
+  fadeInterval = setInterval(() => {
+    counter++;
+    bgMusic.volume = Math.min(TARGET_VOLUME, bgMusic.volume + step);
+
+    if (counter >= FADE_STEPS) {
+      clearInterval(fadeInterval);
+      fadeInterval = null;
+    }
+  }, FADE_TIME / FADE_STEPS);
+}
+
+// Startet die Musik beim ersten Klick auf irgendein Bild
+document.querySelectorAll('.cycle').forEach(img => {
+  img.addEventListener('click', () => {
+    if (!musicStarted) {
+      musicStarted = true;
+
+      bgMusic.play().then(() => {
+        fadeInMusic();
+      }).catch(err => {
+        console.log("Autoplay blockiert. Nutzerinteraktion notwendig.", err);
       });
     }
+  });
+});
 
+    
     /* =========================
        TELEGRAM NOTIFY
        ========================= */
     function sendVisitNotification(){
       fetch('/api/notify', { method: 'POST' });
     }
+
+    
   </script>
 </body>
 </html>
