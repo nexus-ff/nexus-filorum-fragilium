@@ -413,9 +413,10 @@ marker#arrowhead path{
      Ты действительно нашла друга.
 Не потеряй.
 ...по братски!
-     </div></center>
+     </div>
   <img src="image/1514dc797f57847b0be5bdfcc8e436f6.jpg">
-       
+      </center>
+        
     </div>
   </div>
 
@@ -689,140 +690,14 @@ document.querySelectorAll('.cycle').forEach(img => {
     
   </script>
 
-    <!-- =======================
-     🎵 Musik-Button (platzieren vor </body>)
-     ======================= -->
-<style>
-  /* schwarzer, runder Button, fixed rechts unten, startet versteckt */
-  #musicButton {
-    position: fixed;
-    right: 18px;
-    bottom: 18px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #000;       /* schwarz */
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    border: none;
-    cursor: pointer;
-    z-index: 9999;
-
-    /* beginnt versteckt */
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 700ms ease, transform 700ms ease;
-    pointer-events: none;   /* nicht anklickbar, solange verborgen */
-  }
-
-  /* sichtbar - Fade-In */
-  #musicButton.show {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  /* Hover leicht dunkler */
-  #musicButton:hover { background: #111; }
-
-  /* Kleinere Viewports ggf. anpassen */
-  @media (max-width:420px){
-    #musicButton { right: 12px; bottom: 12px; width:44px; height:44px; }
-  }
-</style>
-
-<!-- Button-Element -->
-<button id="musicButton" aria-hidden="true" title="Musik (pausieren/fortsetzen)">▶️</button>
-
-<script>
-/* =======================
-   Musik-Button - Script
-   ======================= */
-
-(function(){
-  // === Konfiguration (falls du anpassen willst) ===
-  const AUDIO_SRC = 'image/music.mp3'; // <-- Pfad zur MP3 in deinem repo
-  const INITIAL_VOLUME = 0.5;          // 0.0 .. 1.0
-  // =================================================
-
-  const musicButton = document.getElementById('musicButton');
-  const audio = new Audio(AUDIO_SRC);
-  audio.loop = true;
-  audio.volume = INITIAL_VOLUME;
-
-  let started = false;   // wurde die Musik schon initial gestartet?
-  let playing = false;   // aktueller Wiedergabezustand
-  let shown = false;     // wurde der Button schon eingeblendet?
-
-  // Blendet den Button sichtbar ein (fade). Wird beim ersten Bildklick ausgelöst.
-  function revealButton() {
-    if (shown) return;
-    shown = true;
-    musicButton.classList.add('show');
-    musicButton.setAttribute('aria-hidden','false');
-  }
-
-  // Startet die Musik (einmalig). Browser können Autoplay blocken -> catch
-  async function startMusicOnce() {
-    if (started) return;
-    started = true;
-    try {
-      await audio.play();
-      playing = true;
-      musicButton.textContent = '⏸️';
-    } catch (err) {
-      // Wenn Autoplay blockiert wird, zeigen wir dennoch den Button,
-      // der es erlaubt, manuell zu starten.
-      console.warn('Autoplay blockiert — Benutzer muss ggf. den Button drücken.', err);
-      musicButton.textContent = '▶️';
-      playing = false;
-    }
-  }
-
-  // Umschalten Play / Pause über den Button
-  musicButton.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    if (!started) {
-      // Falls Musik noch nicht per Bildklick gestartet wurde, starte jetzt
-      await startMusicOnce();
-      revealButton();
-      return;
-    }
-    if (playing) {
-      audio.pause();
-      playing = false;
-      musicButton.textContent = '▶️';
-    } else {
-      try {
-        await audio.play();
-        playing = true;
-        musicButton.textContent = '⏸️';
-      } catch (err) {
-        console.warn('Play konnte nicht gestartet werden:', err);
-      }
-/* =========================
+    <!-- =========================
      🎵 MUSIK-BUTTON & AUDIO
-     ========================= --> */
+     ========================= -->
 
-/*-- Der Button --*/
+<!-- Der Button -->
 <button id="musicButton" title="Musik">▶️</button>
 
-/*-- Das Audio --*/
-<audio id="bgMusic" src="images/dein_track.mp3" preload="auto" loop></audio>
-
-<style>
-  /* =============== BUTTON-STIL =============== */
-/*-- =========================
-     🎵 MUSIK-BUTTON & AUDIO
-     ========================= --*/
-
-/*-- Der Button --*/
-<button id="musicButton" title="Musik">▶️</button>
-
-/*-- Das Audio --*/
+<!-- Das Audio -->
 <audio id="bgMusic" src="images/dein_track.mp3" preload="auto" loop></audio>
 
 <style>
@@ -903,7 +778,7 @@ document.querySelectorAll('.cycle').forEach(img => {
 
   // Anfangszustand
   btn.textContent = "▶️";
-    </script>
+</script>
     <!-- ======================= Ende Musik-Button ======================= -->
     
 </body>
