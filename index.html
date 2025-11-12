@@ -275,6 +275,38 @@ marker#arrowhead path{
       .auth{ gap:8px; }
       .auth button{ padding: 11px 12px; }
     }
+
+!-- =======================
+     🎵 MUSIK-CONTROL BUTTON
+     ======================= -->
+/* --- Stil des schwebenden Musik-Buttons --- */
+  #musicButton {
+    position: fixed;
+    right: 18px;
+    bottom: 22px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 46px;
+    height: 46px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    z-index: 9999; /* immer ganz oben */
+  }
+  #musicButton.show {
+    opacity: 1;
+  }
+  #musicButton:hover {
+    background: rgba(0,0,0,0.9);
+  }
+    
+    
   </style>
 </head>
 <body>
@@ -406,6 +438,10 @@ marker#arrowhead path{
     <div class="gallery-year">2016</div>
   </div>
 
+        <!-- Button-Element -->
+<button id="musicButton" title="Музыка">▶️</button>
+
+        
       </div>
        
      <div class="letter"><center>
@@ -674,8 +710,54 @@ document.querySelectorAll('.cycle').forEach(img => {
       });
     }
   });
-});
+}); /* =======================
+     🎧 Musiksteuerung
+     ======================= */
+  const musicButton = document.getElementById('musicButton');
+  const audio = new Audio('image/music.mp3'); // 🎵 Pfad zur MP3-Datei
+  audio.loop = true;                          // Endlosschleife
+  audio.volume = 0.5;                         // 🔉 Lautstärke anpassbar
 
+  let isPlaying = false;
+  let hasStartedOnce = false;
+
+  // Musik starten oder pausieren
+  function toggleMusic(){
+    if(!hasStartedOnce){
+      audio.play();
+      hasStartedOnce = true;
+      isPlaying = true;
+      musicButton.textContent = '⏸️';
+    } else {
+      if(isPlaying){
+        audio.pause();
+        musicButton.textContent = '▶️';
+      } else {
+        audio.play();
+        musicButton.textContent = '⏸️';
+      }
+      isPlaying = !isPlaying;
+    }
+  }
+
+  // Button klick → Musik umschalten
+  musicButton.addEventListener('click', toggleMusic);
+
+  // Button erst einblenden, sobald man ein Bild das erste Mal klickt
+  let fadeInMusicButtonOnce = false;
+  document.addEventListener('click', (e) => {
+    if(!fadeInMusicButtonOnce){
+      // Starte Musik nur beim ersten Klick auf ein Bild
+      if(e.target.tagName.toLowerCase() === 'img'){
+        audio.play();
+        hasStartedOnce = true;
+        isPlaying = true;
+        musicButton.textContent = '⏸️';
+        musicButton.classList.add('show'); // Fade-in
+        fadeInMusicButtonOnce = true;
+      }
+    }
+  });
     
     /* =========================
        TELEGRAM NOTIFY
