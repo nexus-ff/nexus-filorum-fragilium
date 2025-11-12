@@ -700,114 +700,211 @@ document.querySelectorAll('.cycle').forEach(img => {
   </script>
 
     <!-- =========================
-     🎵 MUSIK-BUTTON & AUDIO
+     🎵 MUSIK-BUTTON & AUDIO (kopiere das in <body> vor </body>)
      ========================= -->
 
-<!-- Der Button -->
-<button id="musicButton" title="Musik">▶️</button>
-
-<!-- Das Audio -->
+<!-- Single Audio element (ein Track, kein zweiter wird gestartet) -->
 <audio id="bgMusic" src="image/music.mp3" preload="auto" loop></audio>
+
+<!-- Musik-Button (initial unsichtbar) -->
+<button id="musicButton" aria-label="Musiksteuerung" title="Musik">▶️</button>
 
 <style>
   /* ===========================
-     🎨 STIL DES MUSIK-BUTTONS
+     Musik-Button - schwarzweiß, fixed, fade-in
      =========================== */
   #musicButton {
     position: fixed;
     right: 20px;
     bottom: 20px;
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border: none;
     border-radius: 50%;
     background: #000;
     color: #fff;
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
-    opacity: 0;
-    pointer-events: none; /* unsichtbar = nicht klickbar */
-    transition: opacity 1.2s ease, background 0.3s;
-    z-index: 9999;
+    opacity: 0;               /* unsichtbar zu Beginn */
+    pointer-events: none;     /* NICHT klickbar solange unsichtbar */
+    transition: opacity 1.0s ease, transform 0.18s ease;
+    z-index: 99999;
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: grayscale(100%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    filter: grayscale(100%);  /* schwarz-weiß Look */
   }
 
-  #musicButton:hover {
-    background: #333;
-  }
+  /* hover / aktive Rückmeldung */
+  #musicButton:hover { transform: translateY(-2px); background:#111; }
 
-  /* Aktiv: eingeblendet */
+  /* Eingeblendet */
   #musicButton.show {
     opacity: 1;
-    pointer-events: all; /* klickbar */
+    pointer-events: auto;
+  }
+
+  /* Optional: leicht sichtbarer Fokus-Ring (Zugänglichkeit) */
+  #musicButton:focus { outline: 3px solid rgba(255,255,255,0.12); }
+
+  /* Mobile: etwas kleiner */
+  @media (max-width: 420px) {
+    #musicButton { width:44px; height:44px; right:14px; bottom:14px; font-size:18px; }
   }
 </style>
 
 <script>
-  // ===========================
-  // 🎵 MUSIK-STEUERUNG
-  // ===========================
-  const music = document.getElementById("bgMusic");
-  const btn = document.getElementById("musicButton");
+  (function(){
+    const audio = document.getElementById('bgMusic');
+    const btn   = document.getElementById('musicButton');
 
-  let musicStarted = false; // nur einmal starten
+    // Statusflags
+    let attemptedStart = false; // haben wir versucht, die Musik automatisch zu starten (bei erstem Bild-Klick)?
+    let startedOK = false;      // konnte audio.play() erfolgreich gestartet werden?
+    let playing = false;        // aktuell läuft Ton?
 
-  // ALLE Bilder, die die Musik starten sollen
-  const imgs = document.querySelectorAll("img");
+    // Utility: safely set button symbol
+    function setBtnPlayingState(isPlaying){
+      playing = !!isPlaying;
+      btn.textContent = playing ? '⏸️' : '▶️';
+    }
 
-  imgs.forEach(img => {
-    img.addEventListener("click", async () => {
-      if (!musicStarted) {
-        try {
-          const playPromise = music.play();
+    // Show button with fade-in (and make it clickable)
+    function showButton(){
+      if(!btn.classList.contains('show')){
+        // small timeout so fade is visible
+        setTimeout(()=> btn.classList.add('show'), 60);
+      }
+    }
 
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                showMusicButton(); // nach Erfolg anzeigen
-                musicStarted = true;
-                btn.textContent = "⏸️";
-              })
-              .catch(err => {
-                console.warn("Audio konnte nicht automatisch abgespielt werden:", err);
-              });
-          } else {
-            // Falls kein Promise zurückgegeben wurde, trotzdem Button zeigen
-            showMusicButton();
-            musicStarted = true;
-            btn.textContent = "⏸️";
-          }
-        } catch (err) {
-          console.error("Fehler beim Starten des Tracks:", err);
+    // Try to start audio when user clicks an image (first gesture)
+    function onFirstImageClick(){
+      if(attemptedStart) return;
+      attemptedStart = true;
+
+      // Attempt to play; browsers return a promise in most cases.
+      try {
+        const p = audio.play();
+        if (p && typeof p.then === 'function'){
+          p.then(() => {
+            // started successfully
+            startedOK = true;
+            setBtnPlayingState(true);
+            showButton();
+          }).catch((err) => {
+            // blocked — still show button so user can start manually
+            console.warn('Audio autoplay blocked or failed:', err);
+            startedOK = false;
+            setBtnPlayingState(false);
+            showButton();
+          });
+        } else {
+          // Some browsers may not return a promise — assume play started
+          startedOK = !audio.paused;
+          setBtnPlayingState(!audio.paused);
+          showButton();
         }
+      } catch (err) {
+        console.warn('Audio play() threw:', err);
+        startedOK = false;
+        setBtnPlayingState(false);
+        showButton();
+      }
+    }
+
+    // Toggle play/pause when button clicked
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      // If not started yet (autoplay blocked), try to play on user gesture
+      if(!attemptedStart){
+        attemptedStart = true;
+        try {
+          await audio.play();
+          startedOK = true;
+          setBtnPlayingState(true);
+        } catch(err){
+          console.warn('Play on button click blocked:', err);
+          startedOK = false;
+          setBtnPlayingState(false);
+        }
+        showButton();
+        return;
+      }
+
+      // If audio is paused, try to play; else pause
+      if(audio.paused){
+        try {
+          await audio.play();
+          setBtnPlayingState(true);
+        } catch(err){
+          console.warn('Error playing audio:', err);
+          setBtnPlayingState(false);
+        }
+      } else {
+        audio.pause();
+        setBtnPlayingState(false);
       }
     });
-  });
 
-  function showMusicButton() {
-    // Leichter Delay, damit das Fade garantiert sichtbar ist
-    setTimeout(() => {
-      btn.classList.add("show");
-    }, 300);
-  }
+    // Listen for first image click anywhere on page (delegated)
+    // This covers images added dynamically as well.
+    document.addEventListener('click', function onDocClick(e){
+      const el = e.target;
+      if(el && el.tagName && el.tagName.toLowerCase() === 'img'){
+        onFirstImageClick();
+      }
+    }, {capture: false, passive: true});
 
-  // Klick auf Button -> Musik pausieren/fortsetzen
-  btn.addEventListener("click", () => {
-    if (music.paused) {
-      music.play();
-      btn.textContent = "⏸️";
-    } else {
-      music.pause();
-      btn.textContent = "▶️";
+    // Keep button text in sync with actual audio events (in case of external changes)
+    audio.addEventListener('play', ()=> setBtnPlayingState(true));
+    audio.addEventListener('pause', ()=> setBtnPlayingState(false));
+    audio.addEventListener('ended', ()=> setBtnPlayingState(false));
+    audio.addEventListener('error', ()=> { setBtnPlayingState(false); showButton(); });
+
+    // If the audio is already playing (edge-case), show the button
+    if(!audio.paused){
+      startedOK = true;
+      setBtnPlayingState(true);
+      showButton();
     }
-  });
 
-  // Anfangszustand
-  btn.textContent = "▶️";
-</script>
+    // Defensive: if user interacts (touchstart) with page and we haven't tried, attempt to start silently
+    // (some mobile browsers allow play on first touch)
+    function tryOnFirstTouch(){
+      if(!attemptedStart){
+        attemptedStart = true;
+        const p = audio.play();
+        if(p && typeof p.then === 'function'){
+          p.then(()=>{ startedOK = true; setBtnPlayingState(true); showButton(); })
+           .catch(()=>{ startedOK=false; setBtnPlayingState(false); /* still show on explicit image click only */ });
+        } else {
+          startedOK = !audio.paused;
+          setBtnPlayingState(!audio.paused);
+          showButton();
+        }
+      }
+      // remove listeners once attempted
+      window.removeEventListener('touchstart', tryOnFirstTouch);
+      window.removeEventListener('pointerdown', tryOnFirstTouch);
+    }
+    window.addEventListener('touchstart', tryOnFirstTouch, {passive:true});
+    window.addEventListener('pointerdown', tryOnFirstTouch, {passive:true});
+
+    // Accessibility: allow keyboard toggling if button visible & focused
+    btn.addEventListener('keydown', (ev) => {
+      if(ev.key === 'Enter' || ev.key === ' '){
+        ev.preventDefault();
+        btn.click();
+      }
+    });
+
+    // If needed: expose for debugging
+    window.__musicControl = {
+      audio, btn, showButton, setBtnPlayingState
+    };
+  })();
+  </script>
     <!-- ======================= Ende Musik-Button ======================= -->
     
 </body>
