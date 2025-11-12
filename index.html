@@ -235,19 +235,37 @@ marker#arrowhead path{
       max-width: 95%;
     }
 
-    /* Bilderbereich */
-    img{
-      display:block;
-      margin: 20px auto 0 auto;
-      width: min(100%, 320px);
-      height: auto;
-      border: 2px solid #000;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform .25s ease;
-    }
-    img:hover{ transform: scale(1.03); }
+    /* ===== BILDERBEREICH NEU ===== */
 
+.gallery-block {
+  margin-top: 40px;
+}
+
+.gallery-item {
+  margin-bottom: 32px;
+  text-align: right;
+}
+
+.gallery-item img {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.5s ease; /* Fade-Effekt */
+}
+
+.gallery-year {
+  font-style: italic;
+  font-size: 0.85rem;
+  margin-top: 6px;
+  opacity: 0.7;
+  text-align: right;
+}
+    
     /* Kleinere Screens – Feintuning */
     @media (max-width: 380px){
       :root{
@@ -338,8 +356,57 @@ marker#arrowhead path{
 Не смотря на мою просьбу и мои чувства, помни, что твои чувства для тебя должны быть важнее - хоть мне и будет больно, ты должна думать о своём комфорте. Я точно не обижусь на тебя - мне лишь будет очень грустно. Ты не должна видеть твой выбор, как что-то окончательное и не должна мне отвечать сразу. Зделай это, когда тебе будет комфортно или появится желание. Помни, что <strong>я всегда буду рад тебе</strong>.
 
 
-      <img id="mainImage" src="image/IMG_8462.JPG" alt="Bild 1" />
+      <div class="gallery-block">
 
+  <!-- ===== Bildgruppe 1 ===== -->
+  <div class="gallery-item">
+    <img class="cycle" data-set="set1"
+         src="image/set1_1.jpg"
+         data-images='["image/set1_1.jpg","image/set1_2.jpg","image/set1_3.jpg"]'>
+    <div class="gallery-year">2011</div>
+  </div>
+
+  <!-- ===== Bildgruppe 2 ===== -->
+  <div class="gallery-item">
+    <img class="cycle" data-set="set2"
+         src="image/set2_1.jpg"
+         data-images='["image/set2_1.jpg","image/set2_2.jpg","image/set2_3.jpg"]'>
+    <div class="gallery-year">2012</div>
+  </div>
+
+  <!-- ===== Bildgruppe 3 ===== -->
+  <div class="gallery-item">
+    <img class="cycle" data-set="set3"
+         src="image/set3_1.jpg"
+         data-images='["image/set3_1.jpg","image/set3_2.jpg","image/set3_3.jpg"]'>
+    <div class="gallery-year">2013</div>
+  </div>
+
+  <!-- ===== Bildgruppe 4 ===== -->
+  <div class="gallery-item">
+    <img class="cycle" data-set="set4"
+         src="image/set4_1.jpg"
+         data-images='["image/set4_1.jpg","image/set4_2.jpg","image/set4_3.jpg"]'>
+    <div class="gallery-year">2014</div>
+  </div>
+
+  <!-- ===== Bildgruppe 5 ===== -->
+  <div class="gallery-item">
+    <img class="cycle" data-set="set5"
+         src="image/set5_1.jpg"
+         data-images='["image/set5_1.jpg","image/set5_2.jpg","image/set5_3.jpg"]'>
+    <div class="gallery-year">2015</div>
+  </div>
+
+  <!-- ===== Bildgruppe 6 ===== -->
+  <div class="gallery-item">
+    <img class="cycle" data-set="set6"
+         src="image/set_1.jpg"
+         data-images='["image/set6_1.jpg","image/set6_2.jpg","image/set6_3.jpg"]'>
+    <div class="gallery-year">2016</div>
+  </div>
+
+      </div>
        
      <div class="letter"><center>
      Ты действительно нашла друга.
