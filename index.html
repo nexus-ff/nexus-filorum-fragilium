@@ -255,7 +255,7 @@ marker#arrowhead path{
   margin-right: 0;
   cursor: pointer;
   opacity: 1;
-  transition: opacity 0.5s ease; /* Fade-Effekt */
+  transition: opacity 1s ease; /* Fade-Effekt */
 }
 
 .gallery-year {
@@ -282,30 +282,32 @@ marker#arrowhead path{
 /* --- Stil des schwebenden Musik-Buttons --- */
   #musicButton {
     position: fixed;
-    right: 18px;
-    bottom: 22px;
-    background: rgba(0,0,0,0.75);
+    right: 25px;
+    bottom: 25px;
+    width: 48px;
+    height: 48px;
+    background-color: #000;        /* Schwarz */
     color: #fff;
     border: none;
-    border-radius: 50%;
-    width: 46px;
-    height: 46px;
-    font-size: 20px;
+    border-radius: 50%;            /* Rund */
+    font-size: 22px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: opacity 1.2s ease;
-    z-index: 9999; /* immer ganz oben */
+    opacity: 0;                    /* Unsichtbar zu Beginn */
+    transition: opacity 1.5s ease; /* Fade-Effekt */
+    z-index: 9999;                 /* Immer ganz oben */
   }
+
+  /* Eingeblendet */
   #musicButton.show {
     opacity: 1;
   }
+
   #musicButton:hover {
-    background: rgba(0,0,0,0.9);
+    background-color: #111;
   }
-    
     
   </style>
 </head>
@@ -714,48 +716,45 @@ document.querySelectorAll('.cycle').forEach(img => {
      🎧 Musiksteuerung
      ======================= */
   const musicButton = document.getElementById('musicButton');
-  const audio = new Audio('image/music.mp3'); // 🎵 Pfad zur MP3-Datei
-  audio.loop = true;                          // Endlosschleife
-  audio.volume = 0.5;                         // 🔉 Lautstärke anpassbar
+  const audio = new Audio('image/music.mp3'); // Musikdatei (Pfad anpassen)
+  audio.loop = true;
+  audio.volume = 0.5; // Lautstärke (0.0–1.0)
 
   let isPlaying = false;
-  let hasStartedOnce = false;
+  let hasStarted = false;
 
-  // Musik starten oder pausieren
-  function toggleMusic(){
-    if(!hasStartedOnce){
-      audio.play();
-      hasStartedOnce = true;
+  // --- Musik starten ---
+  function startMusic() {
+    if (!hasStarted) {
+      audio.play().catch(err => console.warn('Autoplay blockiert:', err));
+      hasStarted = true;
       isPlaying = true;
       musicButton.textContent = '⏸️';
-    } else {
-      if(isPlaying){
-        audio.pause();
-        musicButton.textContent = '▶️';
-      } else {
-        audio.play();
-        musicButton.textContent = '⏸️';
-      }
-      isPlaying = !isPlaying;
+      // Button einblenden (Fade-In)
+      musicButton.classList.add('show');
     }
   }
 
-  // Button klick → Musik umschalten
+  // --- Musik pausieren / fortsetzen ---
+  function toggleMusic() {
+    if (!hasStarted) return; // Noch nicht gestartet
+    if (isPlaying) {
+      audio.pause();
+      musicButton.textContent = '▶️';
+    } else {
+      audio.play();
+      musicButton.textContent = '⏸️';
+    }
+    isPlaying = !isPlaying;
+  }
+
+  // --- Klick auf den Button ---
   musicButton.addEventListener('click', toggleMusic);
 
-  // Button erst einblenden, sobald man ein Bild das erste Mal klickt
-  let fadeInMusicButtonOnce = false;
+  // --- Musikstart beim ersten Bild-Klick ---
   document.addEventListener('click', (e) => {
-    if(!fadeInMusicButtonOnce){
-      // Starte Musik nur beim ersten Klick auf ein Bild
-      if(e.target.tagName.toLowerCase() === 'img'){
-        audio.play();
-        hasStartedOnce = true;
-        isPlaying = true;
-        musicButton.textContent = '⏸️';
-        musicButton.classList.add('show'); // Fade-in
-        fadeInMusicButtonOnce = true;
-      }
+    if (e.target.tagName.toLowerCase() === 'img') {
+      startMusic();
     }
   });
     
