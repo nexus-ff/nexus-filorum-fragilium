@@ -276,8 +276,15 @@ marker#arrowhead path{
       .auth button{ padding: 11px 12px; }
     }
     
+ /* its for the picture */
+    .aligncentered {
+    text-align: center;
+    }
+    
   </style>
 </head>
+
+  
 <body>
   <div class="page">
     <!-- ====== TYPEWRITER ====== -->
@@ -409,13 +416,15 @@ marker#arrowhead path{
         
       </div>
        
-     <div class="letter"><center>
+     <div class="aligncentered">
      Ты действительно нашла друга.
 Не потеряй.
 ...по братски!
      </div>
-  <img src="image/1514dc797f57847b0be5bdfcc8e436f6.jpg">
-      </center>
+
+        <p class="aligncentered">
+    <img src="image/1514dc797f57847b0be5bdfcc8e436f6.jpg" alt="centered image" />
+        </p>
         
     </div>
   </div>
@@ -427,8 +436,8 @@ marker#arrowhead path{
 
     // Zeileninhalt
     const LINES = [
-      "   Их много,",
-      "  они сплитены",
+      "      Их много,",
+      " они сплитены",
       "и наравят порваться.",
       "    Не рви их."
     ];
@@ -701,7 +710,9 @@ document.querySelectorAll('.cycle').forEach(img => {
 <audio id="bgMusic" src="images/dein_track.mp3" preload="auto" loop></audio>
 
 <style>
-  /* =============== BUTTON-STIL =============== */
+  /* ===========================
+     🎨 STIL DES MUSIK-BUTTONS
+     =========================== */
   #musicButton {
     position: fixed;
     right: 20px;
@@ -721,49 +732,67 @@ document.querySelectorAll('.cycle').forEach(img => {
     display: flex;
     align-items: center;
     justify-content: center;
+    filter: grayscale(100%);
   }
 
   #musicButton:hover {
     background: #333;
   }
 
+  /* Aktiv: eingeblendet */
   #musicButton.show {
     opacity: 1;
-    pointer-events: all; /* jetzt klickbar */
-  }
-
-  /* Für schwarz-weiß Darstellung */
-  #musicButton, #musicButton * {
-    filter: grayscale(100%);
+    pointer-events: all; /* klickbar */
   }
 </style>
 
 <script>
-  // ==============================
+  // ===========================
   // 🎵 MUSIK-STEUERUNG
-  // ==============================
+  // ===========================
   const music = document.getElementById("bgMusic");
-  const btn   = document.getElementById("musicButton");
+  const btn = document.getElementById("musicButton");
 
   let musicStarted = false; // nur einmal starten
 
-  // Alle Bilder, die die Musik starten sollen
+  // ALLE Bilder, die die Musik starten sollen
   const imgs = document.querySelectorAll("img");
 
   imgs.forEach(img => {
     img.addEventListener("click", async () => {
       if (!musicStarted) {
         try {
-          await music.play();
-          musicStarted = true;
-          btn.classList.add("show"); // Button sichtbar machen (fade-in)
-          btn.textContent = "⏸️";   // Symbol auf "Pause" wechseln
+          const playPromise = music.play();
+
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                showMusicButton(); // nach Erfolg anzeigen
+                musicStarted = true;
+                btn.textContent = "⏸️";
+              })
+              .catch(err => {
+                console.warn("Audio konnte nicht automatisch abgespielt werden:", err);
+              });
+          } else {
+            // Falls kein Promise zurückgegeben wurde, trotzdem Button zeigen
+            showMusicButton();
+            musicStarted = true;
+            btn.textContent = "⏸️";
+          }
         } catch (err) {
-          console.error("Audio-Start blockiert:", err);
+          console.error("Fehler beim Starten des Tracks:", err);
         }
       }
     });
   });
+
+  function showMusicButton() {
+    // Leichter Delay, damit das Fade garantiert sichtbar ist
+    setTimeout(() => {
+      btn.classList.add("show");
+    }, 300);
+  }
 
   // Klick auf Button -> Musik pausieren/fortsetzen
   btn.addEventListener("click", () => {
