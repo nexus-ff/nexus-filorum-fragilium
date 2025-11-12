@@ -803,27 +803,91 @@ document.querySelectorAll('.cycle').forEach(img => {
       } catch (err) {
         console.warn('Play konnte nicht gestartet werden:', err);
       }
+<!-- =========================
+     🎵 MUSIK-BUTTON & AUDIO
+     ========================= -->
+
+<!-- Der Button -->
+<button id="musicButton" title="Musik">▶️</button>
+
+<!-- Das Audio -->
+<audio id="bgMusic" src="images/dein_track.mp3" preload="auto" loop></audio>
+
+<style>
+  /* =============== BUTTON-STIL =============== */
+  #musicButton {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: #000;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.8s ease, background 0.3s;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #musicButton:hover {
+    background: #333;
+  }
+
+  #musicButton.show {
+    opacity: 1;
+  }
+
+  /* Für schwarz-weiß Darstellung */
+  #musicButton, #musicButton * {
+    filter: grayscale(100%);
+  }
+</style>
+
+<script>
+  // ==============================
+  // 🎵 MUSIK-STEUERUNG
+  // ==============================
+  const music = document.getElementById("bgMusic");
+  const btn   = document.getElementById("musicButton");
+
+  let musicStarted = false; // nur einmal starten
+
+  // Bilder sammeln (alle Bilder, die die Musik starten sollen)
+  const imgs = document.querySelectorAll("img");
+
+  imgs.forEach(img => {
+    img.addEventListener("click", () => {
+      if (!musicStarted) {
+        music.play().then(() => {
+          btn.classList.add("show"); // Button per Fade-In anzeigen
+          musicStarted = true;
+        }).catch(err => console.error("Audio-Start blockiert:", err));
+      }
+    });
+  });
+
+  // Klick auf Button -> Musik pausieren/fortsetzen
+  btn.addEventListener("click", () => {
+    if (music.paused) {
+      music.play();
+      btn.textContent = "⏸️";
+    } else {
+      music.pause();
+      btn.textContent = "▶️";
     }
   });
 
-  // Erstes Bild-Klick-Ereignis: startet Musik (einmalig) und blendet Button ein.
-  // Funktion reagiert nur auf <img> Klicks.
-  document.addEventListener('click', async (e) => {
-    const target = e.target;
-    if (!target) return;
-    if (target.tagName && target.tagName.toLowerCase() === 'img') {
-      // Bild angeklickt → Musik starten (falls möglich) und Button einblenden
-      await startMusicOnce();
-      revealButton();
-    }
-  }, { passive: true });
-
-  // Optional: wenn du die Position "rechts unten am Bildband" dynamisch anpassen
-  // willst, würde das zusätzlich JS erfordern — aktuell ist der Button fixed,
-  // rechts unten im Viewport, scrollt also mit (wie gewünscht).
-})();
+  // Initialer Button-Zustand
+  btn.textContent = "▶️";
 </script>
-<!-- ======================= Ende Musik-Button ======================= -->
+    
+    <!-- ======================= Ende Musik-Button ======================= -->
     
 </body>
 </html>
