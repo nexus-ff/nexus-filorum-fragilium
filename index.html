@@ -317,7 +317,7 @@ marker#arrowhead path{
     <div id="content">
       <!-- Laufender Satz -->
 <div id="banner-wrap">
-  <div id="banner">Н е . р в и . - . а . р а с п у т ы в а й !</div>
+  <div id="banner">Не рви - а распутывай..................Не рви - а распутывай..................Не рви - а распутывай..................</div>
 </div>
 
       <div class="letter"><br><br><br><br><em><strong>НИТИ</strong>
@@ -637,17 +637,26 @@ function afterTyping(){
     pwdInput.addEventListener('focus', fadeOutArrow);
     pwdInput.addEventListener('click', fadeOutArrow);
 
-    /* ====== CYCLING-IMAGE FADER ====== */
+    /* ====== CYCLING-IMAGE FADER mit PRELOAD ====== */
 document.querySelectorAll('.cycle').forEach(img => {
   const imgs = JSON.parse(img.dataset.images);
   let index = 0;
 
+  /* === 🔄 PRELOAD-ABSCHNITT: alle Bilder vorladen === */
+  const preloaded = [];
+  imgs.forEach(src => {
+    const image = new Image();
+    image.src = src;
+    preloaded.push(image);
+  });
+  /* === 🔄 Ende PRELOAD-ABSCHNITT === */
+
   img.addEventListener('click', () => {
-    img.style.opacity = 0;          // ausfaden
+    img.style.opacity = 0; // ausfaden
     setTimeout(() => {
       index = (index + 1) % imgs.length;
-      img.src = imgs[index];
-      img.style.opacity = 1;        // einfaden
+      img.src = preloaded[index].src; // bereits vorgeladenes Bild verwenden
+      img.style.opacity = 1; // einfaden
     }, 250); // halb der Übergangsdauer
   });
 });
