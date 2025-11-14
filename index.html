@@ -637,31 +637,30 @@ function afterTyping(){
     pwdInput.addEventListener('focus', fadeOutArrow);
     pwdInput.addEventListener('click', fadeOutArrow);
 
-    /* ====== CYCLING-IMAGE FADER mit PRELOAD ====== */
-document.querySelectorAll('.cycle').forEach(img => {
-  const imgs = JSON.parse(img.dataset.images);
-  let index = 0;
+    /* ================================================
+   🔄 GLOBALER & NICHT BLOCKIERENDER IMAGE-PRELOADER
+   Lädt Bilder erst, wenn Browser im Leerlauf ist.
+   ================================================ */
 
-  /* === 🔄 PRELOAD-ABSCHNITT: alle Bilder vorladen === */
-  const preloaded = [];
-  imgs.forEach(src => {
-    const image = new Image();
-    image.src = src;
-    preloaded.push(image);
-  });
-  /* === 🔄 Ende PRELOAD-ABSCHNITT === */
-
-  img.addEventListener('click', () => {
-    img.style.opacity = 0; // ausfaden
-    setTimeout(() => {
-      index = (index + 1) % imgs.length;
-      img.src = preloaded[index].src; // bereits vorgeladenes Bild verwenden
-      img.style.opacity = 1; // einfaden
-    }, 250); // halb der Übergangsdauer
-  });
+window.addEventListener("load", () => {
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(preloadAllCycles);
+  } else {
+    setTimeout(preloadAllCycles, 200);
+  }
 });
 
-/* =======================================================
+function preloadAllCycles() {
+  document.querySelectorAll('.cycle').forEach(img => {
+    const list = JSON.parse(img.dataset.images);
+    list.forEach(src => {
+      const im = new Image();
+      im.src = src;
+    });
+  });
+}
+
+/* =======================================================*/
 
     /* =========================
        TELEGRAM NOTIFY
