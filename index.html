@@ -443,284 +443,245 @@ marker#arrowhead path{
   </div>
 
 <script>
-/* =========================
-   TYPEWRITER mit Cursor
-   ========================= */
+/* ============================================================
+   Warten bis DOM vollständig geladen ist
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
 
-const LINES = [
-  "      Их много,",
-  " они сплитены",
-  "и наравят порваться.",
-  "    Не рви их."
-];
+  /* =========================
+     TYPEWRITER
+     ========================= */
+  const LINES = [
+    "      Их много,",
+    " они сплитены",
+    "и наравят порваться.",
+    "    Не рви их."
+  ];
+  const LINE_OFFSETS = [3, 0, 1, 4];
 
-const LINE_OFFSETS = [3, 0, 1, 4];
-
-const BASE_DELAY = cssMs('--type-base-delay');
-const JITTER     = cssMs('--type-jitter');
-const LINE_PAUSE = cssMs('--line-pause');
-const OFFSET_STEP = cssStr('--line-offcenter');
-
-const typewriter = document.getElementById('typewriter');
-
-let lineIndex = 0, charIndex = 0;
-let currentSpan = null;
-let cursorEl = null;
-
-function cssStr(name){
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
-function cssMs(name){
-  const v = cssStr(name);
-  return Number(v.replace('ms',''));
-}
-function randDelay(){
-  return BASE_DELAY + Math.floor(Math.random()*JITTER);
-}
-
-function makeCursor(){
-  const c = document.createElement('span');
-  c.className = 'cursor';
-  const lh = parseFloat(getComputedStyle(typewriter).lineHeight);
-  c.style.height = (lh ? lh+'px' : cssStr('--cursor-height'));
-  return c;
-}
-
-function newLine(){
-  const span = document.createElement('span');
-  span.className = 'tw-line';
-
-  const mult = LINE_OFFSETS[lineIndex] ?? 0;
-  span.style.setProperty('--offset', `calc(${mult} * ${OFFSET_STEP})`);
-
-  cursorEl = makeCursor();
-  span.appendChild(cursorEl);
-
-  typewriter.appendChild(span);
-  return span;
-}
-
-function typeNext(){
-  if(lineIndex >= LINES.length){
-    afterTyping();
-    return;
+  function cssStr(name){
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  function cssMs(name){
+    return Number(cssStr(name).replace('ms',''));
   }
 
-  if(!currentSpan){
-    currentSpan = newLine();
+  const BASE_DELAY = cssMs('--type-base-delay');
+  const JITTER     = cssMs('--type-jitter');
+  const LINE_PAUSE = cssMs('--line-pause');
+  const OFFSET_STEP = cssStr('--line-offcenter');
+
+  const typewriter = document.getElementById('typewriter');
+
+  let lineIndex = 0, charIndex = 0;
+  let currentSpan = null, cursorEl = null;
+
+  function randDelay(){ return BASE_DELAY + Math.floor(Math.random()*JITTER); }
+
+  function makeCursor(){
+    const c = document.createElement('span');
+    c.className = 'cursor';
+    const lh = parseFloat(getComputedStyle(typewriter).lineHeight);
+    c.style.height = (lh ? lh+'px' : cssStr('--cursor-height'));
+    return c;
   }
 
-  const line = LINES[lineIndex];
+  function newLine(){
+    const span = document.createElement('span');
+    span.className = 'tw-line';
+    span.style.setProperty('--offset', `calc(${LINE_OFFSETS[lineIndex]} * ${OFFSET_STEP})`);
+    cursorEl = makeCursor();
+    span.appendChild(cursorEl);
+    typewriter.appendChild(span);
+    return span;
+  }
 
-  if(charIndex < line.length){
-    cursorEl.remove();
-    currentSpan.append(line.charAt(charIndex++));
-    currentSpan.appendChild(cursorEl);
-    setTimeout(typeNext, randDelay());
-  } else {
-    currentSpan.querySelector('.cursor')?.remove();
-    lineIndex++;
-    charIndex = 0;
-    currentSpan = null;
+  function typeNext(){
+    if(lineIndex >= LINES.length){ afterTyping(); return; }
+    if(!currentSpan) currentSpan = newLine();
+    const line = LINES[lineIndex];
 
-    if(lineIndex < LINES.length){
-      setTimeout(typeNext, LINE_PAUSE);
+    if(charIndex < line.length){
+      cursorEl.remove();
+      currentSpan.append(line.charAt(charIndex++));
+      currentSpan.appendChild(cursorEl);
+      setTimeout(typeNext, randDelay());
     } else {
-      afterTyping();
+      currentSpan.querySelector('.cursor')?.remove();
+      lineIndex++; charIndex = 0; currentSpan = null;
+      if(lineIndex < LINES.length) setTimeout(typeNext, LINE_PAUSE);
+      else afterTyping();
     }
   }
-}
 
-/* =========================
-   PFEIL
-   ========================= */
 
-const arrowLayer = document.getElementById('arrowLayer');
-const arrowLine  = document.getElementById('arrowLine');
-const authPanel  = document.getElementById('authPanel');
+  /* =========================
+     PFEIL
+     ========================= */
+  const arrowLayer = document.getElementById('arrowLayer');
+  const arrowLine  = document.getElementById('arrowLine');
+  const authPanel  = document.getElementById('authPanel');
 
-function drawArrow(){
-  const twRect   = typewriter.getBoundingClientRect();
-  const authRect = authPanel.getBoundingClientRect();
-  const gap = parseFloat(cssStr('--arrow-gap')) || 14;
+  function drawArrow(){
+    const twRect   = typewriter.getBoundingClientRect();
+    const authRect = authPanel.getBoundingClientRect();
+    const gap = parseFloat(cssStr('--arrow-gap')) || 14;
+    const x = Math.round(twRect.left + twRect.width/2);
+    arrowLine.setAttribute('x1', x);
+    arrowLine.setAttribute('y1', Math.round(twRect.bottom + 6));
+    arrowLine.setAttribute('x2', x);
+    arrowLine.setAttribute('y2', Math.round(authRect.top - gap));
+  }
 
-  const startX = Math.round(twRect.left + twRect.width/2);
-  const startY = Math.round(twRect.bottom + 6);
-  const endX   = startX;
-  const endY   = Math.round(authRect.top - gap);
+  function revealArrow(){
+    arrowLayer.style.opacity = "0";
+    arrowLayer.style.transition = "opacity var(--arrow-fade) ease";
+    requestAnimationFrame(() => { arrowLayer.style.opacity = "1"; });
+  }
 
-  arrowLine.setAttribute('x1', startX);
-  arrowLine.setAttribute('y1', startY);
-  arrowLine.setAttribute('x2', endX);
-  arrowLine.setAttribute('y2', endY);
-}
+  function fadeOutArrow(){ arrowLayer.style.opacity = "0"; }
 
-function revealArrow(){
-  arrowLayer.style.opacity = "0";
-  arrowLayer.style.transition = "opacity var(--arrow-fade) ease";
-  requestAnimationFrame(() => {
-    arrowLayer.style.opacity = "1";
-  });
-}
+  function afterTyping(){
+    drawArrow();
+    revealArrow();
+    window.addEventListener('resize', drawArrow, { passive:true });
+  }
 
-function fadeOutArrow(){
-  arrowLayer.style.opacity = "0";
-}
-
-function afterTyping(){
-  drawArrow();
-  revealArrow();
-  window.addEventListener('resize', drawArrow, { passive:true });
-}
-
-window.addEventListener('load', ()=>{
   typeNext();
-});
 
-/* =========================
-   LOGIN
-   ========================= */
 
-const correctPassword = "нити";
-const errorBox = document.getElementById('errorMessage');
+  /* =========================
+     LOGIN
+     ========================= */
+  const correctPassword = "нити";
+  const errorBox = document.getElementById('errorMessage');
 
-function showError(msg){
-  errorBox.innerHTML = msg;
-  errorBox.style.opacity = 1;
-}
-function hideError(){
-  errorBox.style.opacity = 0;
-}
-
-function checkPassword(){
-  const input = document.getElementById('passwordInput');
-  hideError();
-  if(input.value === correctPassword){
-    document.getElementById('content').style.display = 'block';
-    authPanel.style.display = 'none';
-    arrowLayer.style.display = 'none';
-    sendVisitNotification();
-  }else{
-    showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
-    input.value = '';
-    input.focus();
+  function showError(msg){
+    errorBox.innerHTML = msg;
+    errorBox.style.opacity = 1;
   }
-}
+  function hideError(){ errorBox.style.opacity = 0; }
 
-document.getElementById('loginBtn').addEventListener('click', checkPassword);
-const pwdInput = document.getElementById('passwordInput');
-pwdInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') checkPassword(); });
-pwdInput.addEventListener('focus', fadeOutArrow);
-pwdInput.addEventListener('click', fadeOutArrow);
+  function checkPassword(){
+    const input = document.getElementById('passwordInput');
+    hideError();
+    if(input.value === correctPassword){
+      document.getElementById('content').style.display = 'block';
+      authPanel.style.display = 'none';
+      arrowLayer.style.display = 'none';
+      sendVisitNotification();
+    } else {
+      showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
+      input.value = '';
+      input.focus();
+    }
+  }
 
-/* ================================================
-   🔄 GLOBALER, NICHT BLOCKIERENDER IMAGE-PRELOADER
-   ================================================ */
+  document.getElementById('loginBtn').addEventListener('click', checkPassword);
+  const pwdInput = document.getElementById('passwordInput');
+  pwdInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') checkPassword(); });
+  pwdInput.addEventListener('focus', fadeOutArrow);
+  pwdInput.addEventListener('click', fadeOutArrow);
 
-window.addEventListener("load", () => {
-  if ("requestIdleCallback" in window) {
+
+  /* =========================
+     GLOBALER IMAGE-PRELOADER
+     ========================= */
+  function preloadAllCycles() {
+    document.querySelectorAll('.cycle').forEach(img => {
+      JSON.parse(img.dataset.images).forEach(src => {
+        const im = new Image(); im.src = src;
+      });
+    });
+  }
+
+  if ("requestIdleCallback" in window)
     requestIdleCallback(preloadAllCycles);
-  } else {
-    setTimeout(preloadAllCycles, 200);
-  }
-});
+  else
+    setTimeout(preloadAllCycles, 150);
 
-function preloadAllCycles() {
+
+  /* =========================
+     IMAGE CYCLER
+     ========================= */
   document.querySelectorAll('.cycle').forEach(img => {
-    const list = JSON.parse(img.dataset.images);
-    list.forEach(src => {
-      const im = new Image();
-      im.src = src;
+    const imgs = JSON.parse(img.dataset.images);
+    let index = 0;
+
+    img.addEventListener('click', () => {
+      img.style.opacity = 0;
+      setTimeout(() => {
+        index = (index + 1) % imgs.length;
+        img.src = imgs[index];
+        img.style.opacity = 1;
+      }, 250);
     });
   });
-}
-
-/* =======================================================
-   CYCLING-IMAGE FADER (NEU)
-   ======================================================= */
-
-document.querySelectorAll('.cycle').forEach(img => {
-  const imgs = JSON.parse(img.dataset.images);
-  let index = 0;
-
-  img.addEventListener('click', () => {
-    img.style.opacity = 0;
-
-    setTimeout(() => {
-      index = (index + 1) % imgs.length;
-      img.src = imgs[index];
-      img.style.opacity = 1;
-    }, 250);
-  });
-});
-
-/* =========================
-   TELEGRAM NOTIFY
-   ========================= */
-function sendVisitNotification(){
-  fetch('/api/notify', { method: 'POST' });
-}
-</script>
 
 
-<!-- =========================
-     🎵 MUSIK
-     ========================= -->
-<script>
-const bgMusic = document.getElementById("bgMusic");
-const btn = document.getElementById("musicButton");
-
-let musicStarted = false;
-let fadeInterval = null;
-
-const TARGET_VOLUME = 0.45;
-const FADE_TIME = 4500;
-const FADE_STEPS = 50;
-const BUTTON_DELAY = 300;
-
-function fadeInMusic() {
-  bgMusic.volume = 0;
-  const step = TARGET_VOLUME / FADE_STEPS;
-  let counter = 0;
-
-  fadeInterval = setInterval(() => {
-    counter++;
-    bgMusic.volume = Math.min(TARGET_VOLUME, bgMusic.volume + step);
-    if (counter >= FADE_STEPS) {
-      clearInterval(fadeInterval);
-    }
-  }, FADE_TIME / FADE_STEPS);
-}
-
-function startMusic() {
-  if (musicStarted) return;
-  musicStarted = true;
-
-  bgMusic.play().then(() => {
-    fadeInMusic();
-    setTimeout(() => btn.classList.add("show"), BUTTON_DELAY);
-    btn.textContent = "⏸️";
-  }).catch(err => {
-    console.warn("Autoplay blockiert:", err);
-  });
-}
-
-btn.addEventListener("click", () => {
-  if (bgMusic.paused) {
-    bgMusic.play();
-    btn.textContent = "⏸️";
-  } else {
-    bgMusic.pause();
-    btn.textContent = "▶️";
+  /* =========================
+     TELEGRAM
+     ========================= */
+  function sendVisitNotification(){
+    fetch('/api/notify', { method: 'POST' });
   }
-});
 
-/* Musikstart beim ersten Klick auf ein Cycle-Bild */
-document.querySelectorAll('.cycle').forEach(img => {
-  img.addEventListener('click', () => {
-    if (!musicStarted) startMusic();
+
+  /* =========================
+     MUSIK + BUTTON
+     ========================= */
+  const bgMusic = document.getElementById("bgMusic");
+  const btn = document.getElementById("musicButton");
+
+  let musicStarted = false;
+  let fadeInterval = null;
+
+  const TARGET_VOLUME = 0.45;
+  const FADE_TIME = 4500;
+  const FADE_STEPS = 50;
+  const BUTTON_DELAY = 300;
+
+  function fadeInMusic() {
+    bgMusic.volume = 0;
+    const step = TARGET_VOLUME / FADE_STEPS;
+    let counter = 0;
+    fadeInterval = setInterval(() => {
+      counter++;
+      bgMusic.volume = Math.min(TARGET_VOLUME, bgMusic.volume + step);
+      if (counter >= FADE_STEPS) clearInterval(fadeInterval);
+    }, FADE_TIME / FADE_STEPS);
+  }
+
+  function startMusic() {
+    if (musicStarted) return;
+    musicStarted = true;
+
+    bgMusic.play().then(() => {
+      fadeInMusic();
+      setTimeout(() => btn.classList.add("show"), BUTTON_DELAY);
+      btn.textContent = "⏸️";
+    }).catch(err => {
+      console.warn("Autoplay blockiert:", err);
+    });
+  }
+
+  btn.addEventListener("click", () => {
+    if (bgMusic.paused) {
+      bgMusic.play();
+      btn.textContent = "⏸️";
+    } else {
+      bgMusic.pause();
+      btn.textContent = "▶️";
+    }
   });
+
+  document.querySelectorAll('.cycle').forEach(img => {
+    img.addEventListener('click', () => {
+      if (!musicStarted) startMusic();
+    });
+  });
+
 });
-</script>
+      </script>
 </body>
 </html>
