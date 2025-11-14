@@ -442,115 +442,99 @@ marker#arrowhead path{
     </div>
   </div>
 
-  <script>
-    /* =========================
-       TYPEWRITER mit Cursor
-       ========================= */
-
-    // Zeileninhalt
-    const LINES = [
-      "      Их много,",
-      " они сплитены",
-      "и наравят порваться.",
-      "    Не рви их."
-    ];
-
-    // Versatz-Multiplikatoren pro Zeile (relativ zur CSS-Var --line-offcenter)
-    // Beispiel: 1=3, 2=0, 3=1, 4=4  → entspricht Deinem Wunsch
-    const LINE_OFFSETS = [3, 0, 1, 4];
-
-    // Stellschrauben (werden live aus CSS gelesen)
-    const BASE_DELAY = cssMs('--type-base-delay');
-    const JITTER     = cssMs('--type-jitter');
-    const LINE_PAUSE = cssMs('--line-pause');
-    const OFFSET_STEP = cssStr('--line-offcenter'); // z.B. "0.25ch"
-
-    const typewriter = document.getElementById('typewriter');
-
-    // Aktueller Zeilen-Span + Cursor (Cursor immer IM Span!)
-    let lineIndex = 0, charIndex = 0;
-    let currentSpan = null;
-    let cursorEl = null;
-
-    function cssStr(name){
-      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    }
-    function cssMs(name){
-      const v = cssStr(name);
-      return Number(v.replace('ms',''));
-    }
-    function randDelay(){
-      return BASE_DELAY + Math.floor(Math.random()*JITTER);
-    }
-
-    function makeCursor(){
-      const c = document.createElement('span');
-      c.className = 'cursor';
-      // Höhe an tatsächliche Zeilenhöhe koppeln
-      const lh = parseFloat(getComputedStyle(typewriter).lineHeight);
-      c.style.height = (lh ? lh+'px' : cssStr('--cursor-height'));
-      return c;
-    }
-
-    function newLine(){
-      const span = document.createElement('span');
-      span.className = 'tw-line';
-
-      // individuellen Offcenter-Shift setzen:
-      const mult = LINE_OFFSETS[lineIndex] ?? 0;
-      span.style.setProperty('--offset', `calc(${mult} * ${OFFSET_STEP})`);
-
-      // Cursor in diese Zeile verschieben
-      cursorEl = makeCursor();
-      span.appendChild(cursorEl);
-
-      // Zeile in den Typewriter hängen
-      typewriter.appendChild(span);
-      return span;
-    }
-
-    function typeNext(){
-      // Fertig?
-      if(lineIndex >= LINES.length){
-        afterTyping();  // Pfeil zeigen etc.
-        return;
-      }
-
-      if(!currentSpan){
-        currentSpan = newLine();
-      }
-
-      const line = LINES[lineIndex];
-
-      if(charIndex < line.length){
-        // Cursor steht IM Span; wir fügen Text VOR dem Cursor ein,
-        // sodass der Cursor "mitwandert" am Ende des Textes.
-        cursorEl.remove();
-        currentSpan.append(line.charAt(charIndex++));
-        currentSpan.appendChild(cursorEl);
-
-        setTimeout(typeNext, randDelay());
-      } else {
-
-        currentSpan.querySelector('.cursor')?.remove();
-        
-        // Zeile abgeschlossen → kleine Pause, dann nächste Zeile
-        lineIndex++;
-        charIndex = 0;
-        currentSpan = null;
-
-        if(lineIndex < LINES.length){
-          setTimeout(typeNext, LINE_PAUSE);
-        }else{
-          // letzte Zeile fertig → Cursor hier stehen lassen (nicht springen)
-          afterTyping();
-        }
-      }
-    }
-
-    /* =========================
-   PFEIL: Fade-In & Fade-Out
+<script>
+/* =========================
+   TYPEWRITER mit Cursor
    ========================= */
+
+const LINES = [
+  "      Их много,",
+  " они сплитены",
+  "и наравят порваться.",
+  "    Не рви их."
+];
+
+const LINE_OFFSETS = [3, 0, 1, 4];
+
+const BASE_DELAY = cssMs('--type-base-delay');
+const JITTER     = cssMs('--type-jitter');
+const LINE_PAUSE = cssMs('--line-pause');
+const OFFSET_STEP = cssStr('--line-offcenter');
+
+const typewriter = document.getElementById('typewriter');
+
+let lineIndex = 0, charIndex = 0;
+let currentSpan = null;
+let cursorEl = null;
+
+function cssStr(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function cssMs(name){
+  const v = cssStr(name);
+  return Number(v.replace('ms',''));
+}
+function randDelay(){
+  return BASE_DELAY + Math.floor(Math.random()*JITTER);
+}
+
+function makeCursor(){
+  const c = document.createElement('span');
+  c.className = 'cursor';
+  const lh = parseFloat(getComputedStyle(typewriter).lineHeight);
+  c.style.height = (lh ? lh+'px' : cssStr('--cursor-height'));
+  return c;
+}
+
+function newLine(){
+  const span = document.createElement('span');
+  span.className = 'tw-line';
+
+  const mult = LINE_OFFSETS[lineIndex] ?? 0;
+  span.style.setProperty('--offset', `calc(${mult} * ${OFFSET_STEP})`);
+
+  cursorEl = makeCursor();
+  span.appendChild(cursorEl);
+
+  typewriter.appendChild(span);
+  return span;
+}
+
+function typeNext(){
+  if(lineIndex >= LINES.length){
+    afterTyping();
+    return;
+  }
+
+  if(!currentSpan){
+    currentSpan = newLine();
+  }
+
+  const line = LINES[lineIndex];
+
+  if(charIndex < line.length){
+    cursorEl.remove();
+    currentSpan.append(line.charAt(charIndex++));
+    currentSpan.appendChild(cursorEl);
+    setTimeout(typeNext, randDelay());
+  } else {
+    currentSpan.querySelector('.cursor')?.remove();
+    lineIndex++;
+    charIndex = 0;
+    currentSpan = null;
+
+    if(lineIndex < LINES.length){
+      setTimeout(typeNext, LINE_PAUSE);
+    } else {
+      afterTyping();
+    }
+  }
+}
+
+/* =========================
+   PFEIL
+   ========================= */
+
 const arrowLayer = document.getElementById('arrowLayer');
 const arrowLine  = document.getElementById('arrowLine');
 const authPanel  = document.getElementById('authPanel');
@@ -571,75 +555,66 @@ function drawArrow(){
   arrowLine.setAttribute('y2', endY);
 }
 
-/* ✅ Pfeil langsam einblenden */
 function revealArrow(){
   arrowLayer.style.opacity = "0";
   arrowLayer.style.transition = "opacity var(--arrow-fade) ease";
   requestAnimationFrame(() => {
-    arrowLayer.style.opacity = "1";   // Fade-In
+    arrowLayer.style.opacity = "1";
   });
 }
 
-/* ✅ Beim Klick → weich ausblenden */
 function fadeOutArrow(){
-  arrowLayer.style.opacity = "0";     // Fade-Out
+  arrowLayer.style.opacity = "0";
 }
 
-/* Wird nach dem letzten Tippvorgang aufgerufen */
 function afterTyping(){
   drawArrow();
   revealArrow();
   window.addEventListener('resize', drawArrow, { passive:true });
 }
 
-    // Start der Typewriter-Animation
-    window.addEventListener('load', ()=>{
-      typeNext();
-    });
+window.addEventListener('load', ()=>{
+  typeNext();
+});
 
-    /* =========================
-       LOGIN / PASSWORT
-       ========================= */
-    const correctPassword = "нити"; // <— HIER dein Passwort
-    const errorBox = document.getElementById('errorMessage');
+/* =========================
+   LOGIN
+   ========================= */
 
-    function showError(msg){
-      errorBox.innerHTML = msg;
-      errorBox.style.opacity = 1;
-    }
-    function hideError(){
-      errorBox.style.opacity = 0;
-    }
+const correctPassword = "нити";
+const errorBox = document.getElementById('errorMessage');
 
-    function checkPassword(){
-      const input = document.getElementById('passwordInput');
-      hideError();
-      if(input.value === correctPassword){
-        // Inhalt zeigen
-        document.getElementById('content').style.display = 'block';
-        // Auth & Pfeil weg
-        authPanel.style.display = 'none';
-        arrowLayer.style.display = 'none';
-        // Telegram-Notify
-        sendVisitNotification();
-      }else{
-        showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
-        input.value = '';
-        input.focus();
-      }
-    }
+function showError(msg){
+  errorBox.innerHTML = msg;
+  errorBox.style.opacity = 1;
+}
+function hideError(){
+  errorBox.style.opacity = 0;
+}
 
-    // Button click & Enter-Key
-    document.getElementById('loginBtn').addEventListener('click', checkPassword);
-    const pwdInput = document.getElementById('passwordInput');
-    pwdInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') checkPassword(); });
-    // Pfeil beim Interagieren mit dem Input wegfaden
-    pwdInput.addEventListener('focus', fadeOutArrow);
-    pwdInput.addEventListener('click', fadeOutArrow);
+function checkPassword(){
+  const input = document.getElementById('passwordInput');
+  hideError();
+  if(input.value === correctPassword){
+    document.getElementById('content').style.display = 'block';
+    authPanel.style.display = 'none';
+    arrowLayer.style.display = 'none';
+    sendVisitNotification();
+  }else{
+    showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
+    input.value = '';
+    input.focus();
+  }
+}
 
-    /* ================================================
-   🔄 GLOBALER & NICHT BLOCKIERENDER IMAGE-PRELOADER
-   Lädt Bilder erst, wenn Browser im Leerlauf ist.
+document.getElementById('loginBtn').addEventListener('click', checkPassword);
+const pwdInput = document.getElementById('passwordInput');
+pwdInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') checkPassword(); });
+pwdInput.addEventListener('focus', fadeOutArrow);
+pwdInput.addEventListener('click', fadeOutArrow);
+
+/* ================================================
+   🔄 GLOBALER, NICHT BLOCKIERENDER IMAGE-PRELOADER
    ================================================ */
 
 window.addEventListener("load", () => {
@@ -660,153 +635,92 @@ function preloadAllCycles() {
   });
 }
 
-/* =======================================================*/
+/* =======================================================
+   CYCLING-IMAGE FADER (NEU)
+   ======================================================= */
 
-    /* =========================
-       TELEGRAM NOTIFY
-       ========================= */
-    function sendVisitNotification(){
-      fetch('/api/notify', { method: 'POST' });
-    }
-
-    
-  </script>
-
-    
-
-<!-- =========================
-     🎵 MUSIK & BUTTON (NEU)
-     ========================= -->
-
-<!-- Musik -->
-<audio id="bgMusic" src="image/music.mp3" preload="auto" loop></audio>
-
-<!-- Button -->
-<button id="musicButton" title="Musik">▶️</button>
-
-<style>
-  /* ===========================
-     🎨 STIL DES MUSIK-BUTTONS
-     =========================== */
-  #musicButton {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    width: 46px;
-    height: 46px;
-    border: none;
-    border-radius: 50%;
-    background: #000;
-    color: #fff;
-    font-size: 18px;
-    cursor: pointer;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 1.2s ease, background 0.3s;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    filter: grayscale(100%);
-  }
-
-  #musicButton:hover {
-    background: #333;
-  }
-
-  #musicButton.show {
-    opacity: 1;
-    pointer-events: all;
-  }
-</style>
-
-<script>
-  /* =======================================================
-     🔊 AUTO-MUSIC BEIM ERSTEN KLICK + BUTTON-STEUERUNG
-     ======================================================= */
-  const bgMusic = document.getElementById("bgMusic");
-  const btn = document.getElementById("musicButton");
-
-  let musicStarted = false;
-  let fadeInterval = null;
-
-  // ========================
-  // 🔧 EINSTELLUNGEN
-  // ========================
-  const TARGET_VOLUME = 0.45;  // Ziel-Lautstärke
-  const FADE_TIME = 4500;      // Fade-In-Dauer (ms)
-  const FADE_STEPS = 50;       // Schritte
-  const BUTTON_DELAY = 300;    // Fade-In-Verzögerung für Button (ms)
-
-  // ========================
-  // 🎵 FADE-IN
-  // ========================
-  function fadeInMusic() {
-    bgMusic.volume = 0;
-    const step = TARGET_VOLUME / FADE_STEPS;
-    let counter = 0;
-
-    fadeInterval = setInterval(() => {
-      counter++;
-      bgMusic.volume = Math.min(TARGET_VOLUME, bgMusic.volume + step);
-      if (counter >= FADE_STEPS) {
-        clearInterval(fadeInterval);
-      }
-    }, FADE_TIME / FADE_STEPS);
-  }
-
-  // ========================
-  // 🎵 MUSIK STARTEN
-  // ========================
-  function startMusic() {
-    if (musicStarted) return;
-    musicStarted = true;
-
-    bgMusic.play()
-      .then(() => {
-        fadeInMusic();
-        setTimeout(() => btn.classList.add("show"), BUTTON_DELAY);
-        btn.textContent = "⏸️";
-      })
-      .catch(err => {
-        console.warn("Autoplay blockiert, Nutzerinteraktion nötig:", err);
-      });
-  }
-
-  // ========================
-  // 🎵 MUSIK-TOGGLE PER BUTTON
-  // ========================
-  btn.addEventListener("click", () => {
-    if (bgMusic.paused) {
-      bgMusic.play();
-      btn.textContent = "⏸️";
-    } else {
-      bgMusic.pause();
-      btn.textContent = "▶️";
-    }
-  });
-
-  // ========================
-  // 📸 START BEIM ERSTEN KLICK AUF BILD
-  // ========================
-  // Musik nur beim ersten Klick auf ein Cycle-Bild starten,
-// aber NICHT das Cyclen beeinflussen!
 document.querySelectorAll('.cycle').forEach(img => {
-  img.addEventListener('click', (e) => {
-    
-    if (!musicStarted) {
-      startMusic();
-    }
+  const imgs = JSON.parse(img.dataset.images);
+  let index = 0;
 
-    // WICHTIG:
-    // NICHTS returnen,
-    // NICHTS stoppen,
-    // NICHTS blockieren!
-    // Dein Cycler-Code soll danach ganz normal weiterlaufen.
+  img.addEventListener('click', () => {
+    img.style.opacity = 0;
+
+    setTimeout(() => {
+      index = (index + 1) % imgs.length;
+      img.src = imgs[index];
+      img.style.opacity = 1;
+    }, 250);
   });
 });
 
-    /*-- ======================= Ende Musik-Button ======================= --*/
+/* =========================
+   TELEGRAM NOTIFY
+   ========================= */
+function sendVisitNotification(){
+  fetch('/api/notify', { method: 'POST' });
+}
+</script>
+
+
+<!-- =========================
+     🎵 MUSIK
+     ========================= -->
+<script>
+const bgMusic = document.getElementById("bgMusic");
+const btn = document.getElementById("musicButton");
+
+let musicStarted = false;
+let fadeInterval = null;
+
+const TARGET_VOLUME = 0.45;
+const FADE_TIME = 4500;
+const FADE_STEPS = 50;
+const BUTTON_DELAY = 300;
+
+function fadeInMusic() {
+  bgMusic.volume = 0;
+  const step = TARGET_VOLUME / FADE_STEPS;
+  let counter = 0;
+
+  fadeInterval = setInterval(() => {
+    counter++;
+    bgMusic.volume = Math.min(TARGET_VOLUME, bgMusic.volume + step);
+    if (counter >= FADE_STEPS) {
+      clearInterval(fadeInterval);
+    }
+  }, FADE_TIME / FADE_STEPS);
+}
+
+function startMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+
+  bgMusic.play().then(() => {
+    fadeInMusic();
+    setTimeout(() => btn.classList.add("show"), BUTTON_DELAY);
+    btn.textContent = "⏸️";
+  }).catch(err => {
+    console.warn("Autoplay blockiert:", err);
+  });
+}
+
+btn.addEventListener("click", () => {
+  if (bgMusic.paused) {
+    bgMusic.play();
+    btn.textContent = "⏸️";
+  } else {
+    bgMusic.pause();
+    btn.textContent = "▶️";
+  }
+});
+
+/* Musikstart beim ersten Klick auf ein Cycle-Bild */
+document.querySelectorAll('.cycle').forEach(img => {
+  img.addEventListener('click', () => {
+    if (!musicStarted) startMusic();
+  });
+});
 </script>
 </body>
 </html>
