@@ -276,7 +276,7 @@ marker#arrowhead path{
       .auth button{ padding: 11px 12px; }
     }
     
- /* its for the picture */
+ /* its for the last single picture */
     .aligncentered {
     text-align: center;
     }
@@ -734,8 +734,8 @@ function preloadAllCycles() {
   // 🔧 EINSTELLUNGEN
   // ========================
   const TARGET_VOLUME = 0.45;  // Ziel-Lautstärke
-  const FADE_TIME = 2500;      // Fade-In-Dauer (ms)
-  const FADE_STEPS = 40;       // Schritte
+  const FADE_TIME = 4500;      // Fade-In-Dauer (ms)
+  const FADE_STEPS = 50;       // Schritte
   const BUTTON_DELAY = 300;    // Fade-In-Verzögerung für Button (ms)
 
   // ========================
@@ -789,13 +789,24 @@ function preloadAllCycles() {
   // ========================
   // 📸 START BEIM ERSTEN KLICK AUF BILD
   // ========================
-  document.querySelectorAll('.cycle, img').forEach(img => {
-    img.addEventListener('click', () => {
-      startMusic();
-    });
-  });
-</script>
-    <!-- ======================= Ende Musik-Button ======================= -->
+  // Musik nur beim ersten Klick auf ein Cycle-Bild starten,
+// aber NICHT das Cyclen beeinflussen!
+document.querySelectorAll('.cycle').forEach(img => {
+  img.addEventListener('click', (e) => {
     
+    if (!musicStarted) {
+      startMusic();
+    }
+
+    // WICHTIG:
+    // NICHTS returnen,
+    // NICHTS stoppen,
+    // NICHTS blockieren!
+    // Dein Cycler-Code soll danach ganz normal weiterlaufen.
+  });
+});
+
+    /*-- ======================= Ende Musik-Button ======================= --*/
+</script>
 </body>
 </html>
