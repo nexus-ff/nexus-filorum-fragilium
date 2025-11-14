@@ -489,6 +489,12 @@ marker#arrowhead path{
 <button id="musicButton" title="Musik">▶️</button>
 
 <script>
+  
+  /*Notification beim Seitenbesuch*/
+window.addEventListener("load", () => {
+  fetch('/api/visit', { method: 'POST' });
+});
+  
 /* ============================================================
    Warten bis DOM vollständig geladen ist
    ============================================================ */
