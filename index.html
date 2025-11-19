@@ -501,6 +501,10 @@ marker#arrowhead path{
 
     
 <script>
+// falls bereits eingeloggt...
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+  window.location.href = "/"; // zurück zum Login
+  }
   
   /*Notification beim Seitenbesuch*/
 window.addEventListener("load", () => {
@@ -630,6 +634,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById('passwordInput');
     hideError();
     if(input.value === correctPassword){
+      localStorage.setItem("isLoggedIn", "true"); // merken, dass eingeloggt
       document.getElementById('content').style.display = 'block';
       authPanel.style.display = 'none';
       arrowLayer.style.display = 'none';
