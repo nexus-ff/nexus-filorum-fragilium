@@ -501,10 +501,6 @@ marker#arrowhead path{
 
     
 <script>
-// falls bereits eingeloggt...
-  if (localStorage.getItem("isLoggedIn") !== "true") {
-  window.location.href = "/"; // zurück zum Login
-  }
   
   /*Notification beim Seitenbesuch*/
 window.addEventListener("load", () => {
@@ -631,6 +627,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function hideError(){ errorBox.style.opacity = 0; }
 
   function checkPassword(){
+    // falls bereits eingeloggt...
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+  window.location.href = "/"; // zurück zum Login
+  }
     const input = document.getElementById('passwordInput');
     hideError();
     if(input.value === correctPassword){
