@@ -615,85 +615,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* =========================
-   LOGIN
+   LOGIN (Index)
    ========================= */
 
 const correctPassword = "нити";
-const errorBox = document.getElementById("errorMessage");
-const authPanel = document.getElementById("authPanel");
-const content = document.getElementById("content");
-const arrowLayer = document.getElementById("arrowLayer");
+const errorBox = document.getElementById('errorMessage');
+const authPanel = document.getElementById('authPanel');
+const arrowLayer = document.getElementById('arrowLayer');
 
-function showError(msg) {
+function showError(msg){
   errorBox.innerHTML = msg;
   errorBox.style.opacity = 1;
 }
-
-function hideError() {
+function hideError(){
   errorBox.style.opacity = 0;
 }
 
-// ==========================================
-// 🔐 Prüfen, ob User bereits eingeloggt ist
-// ==========================================
-function checkLoginState() {
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+/* 1) Beim Laden: prüfen, ob eingeloggt */
+window.addEventListener("DOMContentLoaded", () => {
+  const loggedIn = localStorage.getItem("isLoggedIn") === "true";
 
-  if (isLoggedIn) {
-    // User ist eingeloggt → Loginformular ausblenden, Inhalte anzeigen
+  if (loggedIn) {
+    // Login-Panel ausblenden, Content anzeigen
     authPanel.style.display = "none";
-    arrowLayer.style.display = "none";
-    content.style.display = "block";
+    document.getElementById("content").style.display = "block";
   } else {
-    // User NICHT eingeloggt → Loginformular anzeigen
-    authPanel.style.display = "flex";
-    arrowLayer.style.display = "block";
-    content.style.display = "none";
+    authPanel.style.display = "block";
+    document.getElementById("content").style.display = "none";
   }
-}
+});
 
-// sofort beim Laden prüfen:
-checkLoginState();
-
-
-// ==========================================
-// 🔓 Passwortprüfung
-// ==========================================
-function checkPassword() {
-
-  const input = document.getElementById("passwordInput");
+/* 2) Beim Klick auf Login */
+function checkPassword(){
+  const input = document.getElementById('passwordInput');
   hideError();
 
-  if (input.value === correctPassword) {
-    // Login speichern
+  if(input.value === correctPassword){
     localStorage.setItem("isLoggedIn", "true");
+    authPanel.style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    arrowLayer.style.display = 'none';
 
-    // UI umschalten
-    authPanel.style.display = "none";
-    arrowLayer.style.display = "none";
-    content.style.display = "block";
-
-    // Telegram-Benachrichtigung (Login)
-    sendVisitNotificationLogin();
-
+    sendVisitNotification(); // ist korrekt
   } else {
     showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
-    input.value = "";
+    input.value = '';
     input.focus();
   }
 }
 
+document.getElementById('loginBtn').addEventListener('click', checkPassword);
 
-// ==========================================
-// EVENT LISTENER
-// ==========================================
-document.getElementById("loginBtn").addEventListener("click", checkPassword);
-
-const pwdInput = document.getElementById("passwordInput");
-pwdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") checkPassword(); });
-pwdInput.addEventListener("focus", fadeOutArrow);
-pwdInput.addEventListener("click", fadeOutArrow);
-
+const pwdInput = document.getElementById('passwordInput');
+pwdInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') checkPassword(); });
+pwdInput.addEventListener('focus', fadeOutArrow);
+pwdInput.addEventListener('click', fadeOutArrow);
 
   /* =========================
      GLOBALER IMAGE-PRELOADER
