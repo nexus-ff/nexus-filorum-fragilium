@@ -614,43 +614,85 @@ document.addEventListener("DOMContentLoaded", () => {
   typeNext();
 
 
-  /* =========================
-     LOGIN
-     ========================= */
-  const correctPassword = "нити";
-  const errorBox = document.getElementById('errorMessage');
+/* =========================
+   LOGIN
+   ========================= */
 
-  function showError(msg){
-    errorBox.innerHTML = msg;
-    errorBox.style.opacity = 1;
-  }
-  function hideError(){ errorBox.style.opacity = 0; }
+const correctPassword = "нити";
+const errorBox = document.getElementById("errorMessage");
+const authPanel = document.getElementById("authPanel");
+const content = document.getElementById("content");
+const arrowLayer = document.getElementById("arrowLayer");
 
-  function checkPassword(){
-    // falls bereits eingeloggt...
-  if (localStorage.getItem("isLoggedIn") !== "true") {
-  window.location.href = "/"; // zurück zum Login
-  }
-    const input = document.getElementById('passwordInput');
-    hideError();
-    if(input.value === correctPassword){
-      localStorage.setItem("isLoggedIn", "true"); // merken, dass eingeloggt
-      document.getElementById('content').style.display = 'block';
-      authPanel.style.display = 'none';
-      arrowLayer.style.display = 'none';
-      sendVisitNotification();
-    } else {
-      showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
-      input.value = '';
-      input.focus();
-    }
-  }
+function showError(msg) {
+  errorBox.innerHTML = msg;
+  errorBox.style.opacity = 1;
+}
 
-  document.getElementById('loginBtn').addEventListener('click', checkPassword);
-  const pwdInput = document.getElementById('passwordInput');
-  pwdInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') checkPassword(); });
-  pwdInput.addEventListener('focus', fadeOutArrow);
-  pwdInput.addEventListener('click', fadeOutArrow);
+function hideError() {
+  errorBox.style.opacity = 0;
+}
+
+// ==========================================
+// 🔐 Prüfen, ob User bereits eingeloggt ist
+// ==========================================
+function checkLoginState() {
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+  if (isLoggedIn) {
+    // User ist eingeloggt → Loginformular ausblenden, Inhalte anzeigen
+    authPanel.style.display = "none";
+    arrowLayer.style.display = "none";
+    content.style.display = "block";
+  } else {
+    // User NICHT eingeloggt → Loginformular anzeigen
+    authPanel.style.display = "flex";
+    arrowLayer.style.display = "block";
+    content.style.display = "none";
+  }
+}
+
+// sofort beim Laden prüfen:
+checkLoginState();
+
+
+// ==========================================
+// 🔓 Passwortprüfung
+// ==========================================
+function checkPassword() {
+
+  const input = document.getElementById("passwordInput");
+  hideError();
+
+  if (input.value === correctPassword) {
+    // Login speichern
+    localStorage.setItem("isLoggedIn", "true");
+
+    // UI umschalten
+    authPanel.style.display = "none";
+    arrowLayer.style.display = "none";
+    content.style.display = "block";
+
+    // Telegram-Benachrichtigung (Login)
+    sendVisitNotificationLogin();
+
+  } else {
+    showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
+    input.value = "";
+    input.focus();
+  }
+}
+
+
+// ==========================================
+// EVENT LISTENER
+// ==========================================
+document.getElementById("loginBtn").addEventListener("click", checkPassword);
+
+const pwdInput = document.getElementById("passwordInput");
+pwdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") checkPassword(); });
+pwdInput.addEventListener("focus", fadeOutArrow);
+pwdInput.addEventListener("click", fadeOutArrow);
 
 
   /* =========================
