@@ -477,7 +477,30 @@ marker#arrowhead path{
         <p class="aligncentered">
     <img src="image/1514dc797f57847b0be5bdfcc8e436f6.jpg" alt="centered image" />
         </p>
-        
+
+        <!-- =========================
+     EXTRA-SEITE LINK (BILD)
+     ========================= -->
+<div class="aligncentered" style="margin-top:50px;">
+  <p style="font-size:1rem; margin-bottom:10px;">
+    <strong><br><br>и ещё кое-что...<br>нажми на картинку</strong>
+  </p>
+
+  <img id="extraLinkImage"
+       src="image/extra.jpg"
+       alt="extra"
+       style="width:260px; max-width:80%; cursor:pointer;">
+</div>
+
+<script>
+/* ===============================================
+   KLICK AUF EXTRA-BILD → EXTRA.HTML
+   =============================================== */
+document.getElementById("extraLinkImage").addEventListener("click", () => {
+  localStorage.setItem("isLoggedIn", "true");   // Sicherheit: Session erneuern
+  window.location.href = "extra.html";          // Wechsel zur extraseite
+});
+</script>
     </div>
   </div>
 <!-- =========================
@@ -617,19 +640,21 @@ document.addEventListener("DOMContentLoaded", () => {
   function hideError(){ errorBox.style.opacity = 0; }
 
   function checkPassword(){
-    const input = document.getElementById('passwordInput');
-    hideError();
-    if(input.value === correctPassword){
-      document.getElementById('content').style.display = 'block';
-      authPanel.style.display = 'none';
-      arrowLayer.style.display = 'none';
-      sendVisitNotification();
-    } else {
-      showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
-      input.value = '';
-      input.focus();
-    }
+  const input = document.getElementById('passwordInput');
+  hideError();
+
+  if(input.value === correctPassword){
+    localStorage.setItem("isLoggedIn", "true");  // <<< SUPER WICHTIG!!!
+    document.getElementById('content').style.display = 'block';
+    authPanel.style.display = 'none';
+    arrowLayer.style.display = 'none';
+    sendVisitNotification();
+  } else {
+    showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
+    input.value = '';
+    input.focus();
   }
+  } //function checkPassword zu
 
   document.getElementById('loginBtn').addEventListener('click', checkPassword);
   const pwdInput = document.getElementById('passwordInput');
@@ -736,6 +761,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
+
+  /* ===============================================
+   Falls Nutzer schon eingeloggt → Login überspringen
+   =============================================== */
+if (localStorage.getItem("isLoggedIn") === "true") {
+  document.getElementById("authPanel").style.display = "none";
+  document.getElementById("arrowLayer").style.display = "none";
+  document.getElementById("content").style.display = "block";
+}
       </script>
 </body>
 </html>
