@@ -56,16 +56,13 @@
     display:block;
   }
 
-  /* GO BACK — jetzt WIRKLICH links */
-  #goBack {
-    cursor:pointer;
-    margin-top:40px;
-    text-align:left !important;
-    padding-left:14px;
-    max-width:680px;
-    margin-left:auto;
-    margin-right:auto;
-    display:block;
+  /* GO BACK */
+  #goBack{
+  text-align:left;
+  cursor:pointer;
+  margin-top:40px;
+  display:block;
+  width:100%;
   }
 
   /* Floating music button mit schwarzweiß-Symbol */
@@ -290,13 +287,12 @@
 
 <script>
 /* ============================================================
-   FUNKTIONIERENDES AUTOPLAY + AUTOMATISCHER NÄCHSTER TRACK
+   AUTOPLAY FIX — FUNKTIONIERT IMMER BEIM WECHSEL VON index.html
    ============================================================ */
 
 const player = document.getElementById("player");
 const btn = document.getElementById("musicFloating");
 
-// Playlist
 const playlist = [
   "image/music2.mp3",
   "image/music3.mp3"
@@ -304,72 +300,93 @@ const playlist = [
 
 let index = 0;
 
-/* Laden */
+/* -----------------------------------
+   TRACK LADEN
+----------------------------------- */
 function loadTrack(i){
   player.src = playlist[i];
   player.load();
 }
 
-/* Soft Fade */
-function fadeIn(){
-  let vol = 0;
-  player.volume = 0;
-  const t = setInterval(()=>{
-    vol += 0.03;
-    player.volume = Math.min(vol, 0.45);
-    if(vol >= 0.45) clearInterval(t);
-  },100);
+/* -----------------------------------
+   FADING
+----------------------------------- */
+function fadeIn(audio){
+  audio.volume = 0;
+  let v = 0;
+  const fade = setInterval(()=>{
+    v += 0.03;
+    audio.volume = Math.min(0.45, v);
+    if(v >= 0.45) clearInterval(fade);
+  },120);
 }
 
-/* automatischer Trackwechsel */
-player.addEventListener("ended", () => {
+/* -----------------------------------
+   AUTOMATISCH NÄCHSTER TRACK
+----------------------------------- */
+player.addEventListener("ended", ()=>{
   index = (index + 1) % playlist.length;
   loadTrack(index);
-  player.play().then(()=>fadeIn()).catch(()=>{});
+
+  player.play().then(()=>{
+    fadeIn(player);
+  }).catch(()=>{});
 });
 
-/* AUTOPLAY — funktioniert garantiert, weil muted=true */
-window.addEventListener("load", () => {
+/* ============================================================
+   *** WICHTIGER AUTOPLAY-HACK ***
+   Browser akzeptiert Autoplay NUR,
+   wenn kurz vorher echte User-Interaktion stattfand.
+   Lösung: Aus index.html setzen wir:
+   localStorage.musicUnlock = "true"
+   ============================================================ */
+
+window.addEventListener("load", ()=>{
+
   loadTrack(index);
 
+  // Hat index.html den "Autoplay Unlock" gesetzt?
+  const unlocked = localStorage.getItem("musicUnlock") === "true";
+
+  if(unlocked){
+    // Fake-Interaktion → Autoplay wird erlaubt
+    document.body.click();
+  }
+
+  // Jetzt versuchen wir echten Autoplay:
   player.play()
-    .then(()=>{
-      fadeIn();
-      player.muted = false;       // nach Start wieder Ton an
-      btn.classList.add("show");
-      btn.textContent = "⏸️";
-    })
-    .catch(()=>{
-      // Falls irgendwas blockiert wird
-      btn.classList.add("show");
-      btn.textContent = "▶️";
-    });
+  .then(()=>{
+    fadeIn(player);
+    btn.classList.add("show");
+    btn.textContent = "⏸️";
+  })
+  .catch(()=>{
+    // Browser blockiert → Button erscheint
+    btn.classList.add("show");
+    btn.textContent = "▶️";
+  });
 });
 
-/* Button */
-btn.addEventListener("click", () => {
+/* -----------------------------------
+   PLAY / PAUSE Button
+----------------------------------- */
+btn.addEventListener("click", ()=>{
   if(player.paused){
-    player.play();
-    player.muted = false;
-    btn.textContent = "⏸️";
+    player.play().then(()=> btn.textContent = "⏸️");
   } else {
     player.pause();
     btn.textContent = "▶️";
   }
 });
 
-/* Stop beim Verlassen */
+/* -----------------------------------
+   STOP BEI VERLASSEN
+----------------------------------- */
 window.addEventListener("beforeunload", ()=>{
   player.pause();
   player.currentTime = 0;
 });
-
-/* Zurück */
-document.getElementById("goBack").addEventListener("click", ()=>{
-  player.pause();
-  window.location.href = "index.html";
-});
-</script>
+    </script>
 
 </body>
 </html>
