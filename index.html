@@ -498,6 +498,7 @@ marker#arrowhead path{
    =============================================== */
 document.getElementById("extraLinkImage").addEventListener("click", () => {
   localStorage.setItem("isLoggedIn", "true");   // Sicherheit: Session erneuern
+  localStorage.setItem("musicUnlock", "true");  // damit die Musik auf der nächsten Seite automatisch direkt läuft
   window.location.href = "extra.html";          // Wechsel zur extraseite
 });
 </script>
