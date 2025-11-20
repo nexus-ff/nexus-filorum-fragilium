@@ -278,225 +278,112 @@
     <strong>⇠вернись...<br><em>(назад, на страничку с фотками)</em></strong>
   </p>
 
-   <!-- Two tracks which alternate -->
-  <audio id="trackA" src="image/music2.mp3" preload="auto"></audio>
-  <audio id="trackB" src="image/music3.mp3" preload="auto"></audio>
+   <!-- Zwei getrennte Tracks -->
+<audio id="trackA" src="image/music2.mp3" preload="auto"></audio>
+<audio id="trackB" src="image/music3.mp3" preload="auto"></audio>
 
-  <!-- Floating music button (appears when music started or when autoplay blocked) -->
-  <button id="musicFloating" aria-label="Musik">⏸️</button>
+<!-- Floating Button -->
+<button id="musicFloating" aria-label="Musik">⏸️</button>
 
 <script>
-/* =========================
-   extra.html — überarbeiteter JS
-   - Autostart mit Fade (wenn erlaubt)
-   - Wechsel A ↔ B bei Ende (loop zwischen beiden)
-   - Floating button zeigt sich nach Start / wenn autoplay blockiert
-   - Direkterlink-Schutz (leitet zurück, wenn user nicht eingeloggt)
-   - Stoppen beim Verlassen / beim Zurückgehen
-   ========================= */
+/* ============================================================
+   EXTRA.HTML – FUNKTIONIERENDE MUSIKLOGIK
+   (2-Player-Version — die EINZIGE, die bei dir Autoplay erlaubt)
+   ============================================================ */
 
-(function(){
-  'use strict';
+// Direkterlink-Schutz
+if (localStorage.getItem("isLoggedIn") !== "true") {
+  window.location.href = "index.html";
+}
 
-  /* ---------------------------
-     1) DIREKTLINK-SCHUTZ
-     --------------------------- */
-  // Wenn nicht eingeloggt, zurück zur index (schont auch, falls jemand die Seite direkt aufruft)
-  if (localStorage.getItem("isLoggedIn") !== "true") {
-    // keine weitere Verarbeitung
-    window.location.href = "index.html";
-    return;
-  }
+// Elemente
+const A = document.getElementById("trackA");
+const B = document.getElementById("trackB");
+const btn = document.getElementById("musicFloating");
+const goBack = document.getElementById("goBack");
 
-  /* ---------------------------
-     Elemente
-     --------------------------- */
-  const A = document.getElementById("trackA");
-  const B = document.getElementById("trackB");
-  const btn = document.getElementById("musicFloating");
-  const goBack = document.getElementById("goBack");
+let current = A;
+let next = B;
+const TARGET_VOLUME = 0.45;
 
-  // Konfiguration
-  const TARGET_VOLUME = 0.45;
-  const FADE_DURATION = 2200; // ms
-  const FADE_STEPS = 40;
+/* ---------------------------
+   Fade-In
+--------------------------- */
+function fadeIn(audio){
+  audio.volume = 0;
+  let v = 0;
+  const fade = setInterval(()=>{
+    v += 0.03;
+    audio.volume = Math.min(TARGET_VOLUME, v);
+    if (v >= TARGET_VOLUME) clearInterval(fade);
+  }, 120);
+}
 
-  // State
-  let current = A;   // start-Track
-  let next = B;
-  let fadeInterval = null;
-  let isFading = false;
-  let autoplaySucceeded = false;
+/* ---------------------------
+   Auto-Wechsel A → B → A → …
+--------------------------- */
+function swapTracks(){
+  current.pause();
+  const old = current;
+  current = next;
+  next = old;
 
-  /* ---------------------------
-     Utility: sanftes Einblenden (Fade-In) eines Audio-Elements
-     gibt Promise zurück, die resolved wenn audio.play() erfolgreich gestartet & gefadet
-     --------------------------- */
-  function fadeInAudio(audio){
-    return new Promise((resolve) => {
-      // cleanup bestehendes fade
-      if (fadeInterval) { clearInterval(fadeInterval); fadeInterval = null; isFading = false; }
+  current.currentTime = 0;
+  current.play().then(()=>fadeIn(current));
+}
 
-      audio.volume = 0;
-      // Versuchen zu spielen — browsers können play() ablehnen (Autoplay-Policy)
-      const playPromise = audio.play();
+A.onended = swapTracks;
+B.onended = swapTracks;
 
-      // Falls play() ein Promise zurückgibt -> handle
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          // play erfolgreich
-          doFade();
-        }).catch((err) => {
-          // play verweigert (Autoplay blocked)
-          console.warn("Autoplay blockiert (extra.html):", err);
-          showMusicButton(true); // Button zeigen, damit User starten kann
-          resolve(false);
-        });
-      } else {
-        // älterer Browser: starte Fade trotzdem
-        doFade();
-      }
+/* ---------------------------
+   Versuch automatischer Start
+--------------------------- */
+window.addEventListener("load", ()=>{
 
-      function doFade(){
-        isFading = true;
-        let step = TARGET_VOLUME / FADE_STEPS;
-        let counter = 0;
-        fadeInterval = setInterval(() => {
-          counter++;
-          audio.volume = Math.min(TARGET_VOLUME, audio.volume + step);
-          if (counter >= FADE_STEPS) {
-            clearInterval(fadeInterval);
-            fadeInterval = null;
-            isFading = false;
-            // Markieren, dass Autoplay gelang (falls caller möchte)
-            autoplaySucceeded = true;
-            // Merken: Musik wurde in diesem Browser erlaubt
-            try { localStorage.setItem("musicAllowed", "yes"); } catch(_) {}
-            showMusicButton(true);
-            resolve(true);
-          }
-        }, Math.max(10, Math.round(FADE_DURATION / FADE_STEPS)));
-      }
-    });
-  }
-
-  /* ---------------------------
-     Swap Tracks (wird auf onended ausgeführt)
-     - tauscht current/next und startet fadeIn des neuen current
-     --------------------------- */
-  function swapTracks(){
-    // pause & reset previous (defensive)
-    try { if (!current.paused) current.pause(); } catch(_) {}
-    const old = current;
-    current = next;
-    next = old;
-    // Stelle auf 0, start fadeIn
-    current.currentTime = 0;
-    fadeInAudio(current).catch(()=>{ /* ignore */ });
-  }
-
-  /* ---------------------------
-     UI: show/hide music button
-     --------------------------- */
-  function showMusicButton(show){
-    if (show){
+  // Erster Track
+  A.play()
+    .then(()=>{
+      fadeIn(A);
       btn.classList.add("show");
-      btn.setAttribute('aria-hidden','false');
-    } else {
-      btn.classList.remove("show");
-      btn.setAttribute('aria-hidden','true');
-    }
-  }
-
-  /* ---------------------------
-     Stop & Reset (wenn Seite verlassen oder zurück)
-     --------------------------- */
-  function stopAll(){
-    try {
-      [A,B].forEach(t => { t.pause(); t.currentTime = 0; });
-    } catch(_) {}
-  }
-
-  /* ---------------------------
-     Event hookup
-     --------------------------- */
-  // Wenn ein Track endet -> swap
-  A.addEventListener('ended', swapTracks);
-  B.addEventListener('ended', swapTracks);
-
-  // Wenn Nutzer klickt auf den Floating-Button -> toggle Pause/Play
-  btn.addEventListener('click', () => {
-    // Wenn gerade pausiert: play current (try/catch play())
-    if (current.paused){
-      const p = current.play();
-      if (p && typeof p.then === 'function'){
-        p.then(() => {
-          btn.textContent = "⏸️";
-        }).catch((err) => {
-          console.warn("Play blockiert beim Klick:", err);
-        });
-      } else {
-        btn.textContent = "⏸️";
-      }
-    } else {
-      current.pause();
+      btn.textContent = "⏸️";
+    })
+    .catch(()=>{
+      // Autoplay blockiert → Button sichtbar
+      btn.classList.add("show");
       btn.textContent = "▶️";
-    }
-  });
-
-  // Wenn Nutzer klickt auf "zurück" -> stoppen & zurück zu index
-  goBack.addEventListener('click', (e) => {
-    e.preventDefault();
-    stopAll();
-    // we keep localStorage.isLoggedIn = true so user doesn't need to login again
-    window.location.href = "index.html";
-  });
-
-  // Bei Unload / Navigationsereignis - stoppe Audios
-  window.addEventListener('pagehide', stopAll);
-  window.addEventListener('beforeunload', stopAll);
-
-  /* ---------------------------
-     Autostart-Logik:
-     - wenn localStorage.musicAllowed === 'yes' → versuchen zu starten (user hat zuvor erlaubt)
-     - sonst versuchen, falls browser erlaubt; wenn blockiert → Button sichtbar (Nutzer muss klicken)
-     - Wenn erfolgreich gestartet → btn sichtbar und zeigt Pause (⏸️)
-     --------------------------- */
-  (function tryAutoStart(){
-    const musicAllowed = localStorage.getItem("musicAllowed") === "yes";
-
-    // If musicAllowed set, try to start; otherwise we still try once but will reveal button if blocked
-    fadeInAudio(current).then((ok) => {
-      if (ok){
-        // started and faded in
-        btn.textContent = "⏸️";
-      } else {
-        // autoplay blocked — the fadeInAudio already showed the button
-        btn.textContent = "▶️";
-      }
     });
-  })();
+});
 
-  /* ---------------------------
-     Small accessibility: if user touches anywhere, and autoplay was blocked,
-     start music on first explicit gesture (and hide button after toggle behaviour is set)
-     --------------------------- */
-  function firstGestureStart(){
-    if (autoplaySucceeded) return;
-    // try to play (user gesture)
-    fadeInAudio(current).then(ok=>{
-      if (ok) btn.textContent = "⏸️";
-      else btn.textContent = "▶️";
-      // remove the one-time listener
-      window.removeEventListener('pointerdown', firstGestureStart);
-      window.removeEventListener('keydown', firstGestureStart);
-    });
+/* ---------------------------
+   Button Play/Pause
+--------------------------- */
+btn.addEventListener("click", ()=>{
+  if (current.paused){
+    current.play();
+    btn.textContent = "⏸️";
+  } else {
+    current.pause();
+    btn.textContent = "▶️";
   }
-  window.addEventListener('pointerdown', firstGestureStart, { once:true });
-  window.addEventListener('keydown', firstGestureStart, { once:true });
+});
 
-  /* End of IIFE */
-})();
+/* ---------------------------
+   Beim Verlassen stoppen
+--------------------------- */
+window.addEventListener("beforeunload", ()=>{
+  A.pause(); B.pause();
+  A.currentTime = 0; B.currentTime = 0;
+});
+
+/* ---------------------------
+   Zurück zur Hauptseite
+--------------------------- */
+goBack.addEventListener("click", ()=>{
+  A.pause(); B.pause();
+  A.currentTime = 0; B.currentTime = 0;
+  window.location.href = "index.html";
+});
+  
 </script>
 
 </body>
