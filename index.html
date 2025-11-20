@@ -628,41 +628,88 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =========================
-     LOGIN
-     ========================= */
-  const correctPassword = "нити";
-  const errorBox = document.getElementById('errorMessage');
+   LOGIN mit 12h Ablaufzeit
+   ========================= */
 
-  function showError(msg){
-    errorBox.innerHTML = msg;
-    errorBox.style.opacity = 1;
-  }
-  function hideError(){ errorBox.style.opacity = 0; }
+const correctPassword = "нити";
+const errorBox = document.getElementById('errorMessage');
 
-  function checkPassword(){
+// Fehler anzeigen
+function showError(msg){
+  errorBox.innerHTML = msg;
+  errorBox.style.opacity = 1;
+}
+
+// Fehler ausblenden
+function hideError(){
+  errorBox.style.opacity = 0;
+}
+
+// --- LOGIN PRÜFEN ---
+function checkPassword(){
   const input = document.getElementById('passwordInput');
   hideError();
 
   if(input.value === correctPassword){
-    localStorage.setItem("isLoggedIn", "true");  // <<< SUPER WICHTIG!!!
+
+    // *** LOGIN SPEICHERN + TIMESTAMP ***
+    const expireTime = Date.now() + (12 * 60 * 60 * 1000);  // 12 Stunden
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("loginExpires", expireTime.toString());
+
+    // Inhalt zeigen
     document.getElementById('content').style.display = 'block';
     authPanel.style.display = 'none';
     arrowLayer.style.display = 'none';
+
+    // Telegram Meldung
     sendVisitNotification();
+
   } else {
     showError('Неверный пароль<br>русскими, маленькими буквами, во множественном числе');
     input.value = '';
     input.focus();
   }
-  } //function checkPassword zu
+}
 
-  document.getElementById('loginBtn').addEventListener('click', checkPassword);
-  const pwdInput = document.getElementById('passwordInput');
-  pwdInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') checkPassword(); });
-  pwdInput.addEventListener('focus', fadeOutArrow);
-  pwdInput.addEventListener('click', fadeOutArrow);
+// --- EVENT LISTENER ---
+document.getElementById('loginBtn').addEventListener('click', checkPassword);
+
+const pwdInput = document.getElementById('passwordInput');
+pwdInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') checkPassword();
+});
+pwdInput.addEventListener('focus', fadeOutArrow);
+pwdInput.addEventListener('click', fadeOutArrow);
 
 
+// =========================
+// LOGIN STATUS BEIM LADEN
+// =========================
+
+(function(){
+  const loggedIn = localStorage.getItem("isLoggedIn");
+  const expireTime = Number(localStorage.getItem("loginExpires"));
+
+  // Prüfen ob Login gültig
+  if(loggedIn === "true" && Date.now() < expireTime){
+    // gültiger Login → Content anzeigen
+    document.getElementById('content').style.display = 'block';
+    authPanel.style.display = 'none';
+    arrowLayer.style.display = 'none';
+  } else {
+    // Login abgelaufen / nicht vorhanden → alles löschen
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("loginExpires");
+
+    // Login wieder anzeigen
+    document.getElementById('content').style.display = 'none';
+    authPanel.style.display = 'block';
+    arrowLayer.style.display = 'block';
+  }
+})();
+
+  
   /* =========================
      GLOBALER IMAGE-PRELOADER
      ========================= */
