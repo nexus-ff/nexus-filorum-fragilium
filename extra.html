@@ -1,44 +1,52 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ещё кое-что</title>
 
 <style>
+  :root{
+    --mono: "Courier New", monospace;
+    --music-target-volume: 0.45;
+  }
+
+  html,body{ height:100%; margin:0; }
   body {
     margin:0;
     background:#000;
     color:#fff;
-    font-family: "Courier New", monospace;
+    font-family: var(--mono);
     padding: 28px;
   }
 
-  .quote {
-  font-family: var(--mono);
-  font-size: 1.05rem;
-  line-height: 1.45;
-  white-space: pre-wrap;
+  h2 { text-align:center; margin:0 0 8px 0; }
 
-  text-align: left;      /* ⬅️ nicht mehr zentriert */
-  margin: 28px auto;     
-  padding-left: 28px;    /* ⬅️ Einzug links */
-  border-left: 2px solid #666;  /* ⬅️ subtiler Quote-Balken */
-  opacity: 0.8;
-  max-width: 640px;
+  .quote {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    text-align: left;
+    margin: 28px auto;
+    padding-left: 28px;
+    border-left: 2px solid #666;
+    opacity: 0.8;
+    max-width: 680px;
   }
 
   .textblockE {
-  font-family: var(--mono);
-  font-size: 1.05rem;
-  line-height: 1.45;
-  max-width: 680px;
-  margin: 40px auto;
-  white-space: pre-wrap;
-  text-align: left;         /* ⬅️ NEU: nicht mehr mittig */
-  padding: 0 14px;          /* ⬅️ saubere linke/rechte Ränder */
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    line-height: 1.45;
+    max-width: 680px;
+    margin: 40px auto;
+    white-space: pre-wrap;
+    text-align: left;
+    padding: 0 14px;
   }
 
+  /* Music floating button (right-bottom, fixed & grayscale) */
   #musicFloating {
     position: fixed;
     right: 20px;
@@ -53,31 +61,55 @@
     cursor:pointer;
     opacity:0;
     pointer-events:none;
-    transition: opacity 1.2s ease;
+    transition: opacity 600ms ease;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 9999;
+    filter: grayscale(100%);
   }
-
   #musicFloating.show {
     opacity:1;
     pointer-events:auto;
+  }
+
+  /* image */
+  .hero-img {
+    width:260px;
+    max-width:70%;
+    margin:25px auto;
+    display:block;
+  }
+
+  /* goBack */
+  #goBack{
+    text-align:center;
+    cursor:pointer;
+    margin-top: 40px;
+  }
+  #goBack strong { display:inline-block; text-align:center; }
+
+  /* small screens */
+  @media (max-width:420px){
+    .textblockE, .quote { padding-left: 14px; padding-right: 14px; max-width: 92vw; }
+    #musicFloating { right: 12px; bottom: 12px; width:42px; height:42px; }
   }
 </style>
 </head>
 
 <body>
 
-<center><h2><strong>И ещё кое-что...</strong></h2></center>
+  <h2><strong>И ещё кое-что...</strong></h2>
 
-<img src="image/maskoff.jpg"
-     style="width:260px; max-width:70%; margin:25px auto; display:block;">
+  <img src="image/maskoff.jpg" class="hero-img" alt="maskoff">
 
-<p style="margin-top:10px; font-size:1rem;">
-  <center><em>продолжаем открываться</em></center>
-</p>
+  <p style="margin-top:10px; font-size:1rem; text-align:center;"><em>продолжаем открываться</em></p>
 
-<br><br><br>
+  <br><br><br>
 
-<!-- Text -->
-<div id="textblockE">Прочитав начало нашей переписки я многое понял и - несмотря на то что я, абсолютно точно, никогда не хотел тебе чем либо навредить (ОТВЕЧАЮ!) - в долю своих собственных проблем/хотелок и незнания тебя настолько, насколько узнал уже после третий нашей встречи, заметил что и правда выбрал не самый правильный подход к нашим отношениям. После нашей первой и второй встречи в Ганновере были лишь догадки о том, что происходит в тебе - а я на тот момент и правда хотел "лёгких, не принуждённых, дружеских отношений с хорошей долей жёсткого, сладкого и качественного секса". И - честно говоря - мне казалось, что и ты не против такого вида отношений... Тогда я даже и не догадывался, что на столько глубоко окунусь в тебя и что ты для меня станешь невероятно близким человеком. За это извиняться наверное глупо и неуместно - ведь я многого ещё не знал - однако у меня есть чувства вены. И если у меня не выподит больше такой возможности, то я хочу перед тобой извинится хотя-бы здесь. Прости меня за то, что я не представлял, насколько глубокими и значимыми станят наши отношения. 
+  <!-- Text -->
+  <div id="textblockE" class="textblockE">
+Прочитав начало нашей переписки я многое понял и - несмотря на то что я, абсолютно точно, никогда не хотел тебе чем либо навредить (ОТВЕЧАЮ!) - в долю своих собственных проблем/хотелок и незнания тебя настолько, насколько узнал уже после третий нашей встречи, заметил что и правда выбрал не самый правильный подход к нашим отношениям. После нашей первой и второй встречи в Ганновере были лишь догадки о том, что происходит в тебе - а я на тот момент и правда хотел "лёгких, не принуждённых, дружеских отношений с хорошей долей жёсткого, сладкого и качественного секса". И - честно говоря - мне казалось, что и ты не против такого вида отношений... Тогда я даже и не догадывался, что на столько глубоко окунусь в тебя и что ты для меня станешь невероятно близким человеком. За это извиняться наверное глупо и неуместно - ведь я многого ещё не знал - однако у меня есть чувства вены. И если у меня не выподит больше такой возможности, то я хочу перед тобой извинится хотя-бы здесь. Прости меня за то, что я не представлял, насколько глубокими и значимыми станят наши отношения. 
 ОДНАКО (!) можно отметить, что интересным образом (это точно стоит проанализировать) именно такое - на тот момент, наверное, в меру поверхностное - общение привело нас сюда. Понимаешь о чём я пытаюсь сказать?
 4. Июля мне написала другая часть тебя и назвала это "перезагрузкой" мозга - а позже: "пробуждением".</div><div class="quote">
 
@@ -233,127 +265,231 @@
 И чтобы настал этот день прекрасный, 
 Я тебе помогу.</div>
 
-<br><br><br>
+  <br><br><br>
 
-<p style="cursor:pointer;" id="goBack">
-  <strong>⇠вернись...<br><em>(назад, на страничку с фотками)</em></strong>
-</p>
+  <p id="goBack">
+    <strong>⇠вернись...<br><em>(назад, на страничку с фотками)</em></strong>
+  </p>
 
-<!-- Musik -->
-<audio id="trackA" src="image/music2.mp3" preload="auto"></audio>
-<audio id="trackB" src="image/music3.mp3" preload="auto"></audio>
+  <!-- Two tracks which alternate -->
+  <audio id="trackA" src="image/music2.mp3" preload="auto"></audio>
+  <audio id="trackB" src="image/music3.mp3" preload="auto"></audio>
 
-<!-- Button -->
-<button id="musicFloating">⏸️</button>
-
+  <!-- Floating music button (appears when music started or when autoplay blocked) -->
+  <button id="musicFloating" aria-label="Musik">⏸️</button>
 
 <script>
-/* ============================================================
-   1) DIREKTLINK-SCHUTZ
-   ============================================================ */
-if (localStorage.getItem("isLoggedIn") !== "true") {
-  window.location.href = "index.html";
-}
+/* =========================
+   extra.html — überarbeiteter JS
+   - Autostart mit Fade (wenn erlaubt)
+   - Wechsel A ↔ B bei Ende (loop zwischen beiden)
+   - Floating button zeigt sich nach Start / wenn autoplay blockiert
+   - Direkterlink-Schutz (leitet zurück, wenn user nicht eingeloggt)
+   - Stoppen beim Verlassen / beim Zurückgehen
+   ========================= */
 
-/* ============================================================
-   2) MUSIKSYSTEM EXTRA-SEITE
-   ============================================================ */
-const A = document.getElementById("trackA");
-const B = document.getElementById("trackB");
-const btn = document.getElementById("musicFloating");
+(function(){
+  'use strict';
 
-let current = A;
-let next = B;
-let fadeTimer = null;
-
-function fadeIn(audio) {
-  audio.volume = 0;
-  audio.play();
-  let v = 0;
-  fadeTimer = setInterval(() => {
-    v += 0.02;
-    audio.volume = Math.min(0.45, v);
-    if (v >= 0.45) clearInterval(fadeTimer);
-  }, 100);
-}
-
-function swapTracks() {
-  const old = current;
-  current = next;
-  next = old;
-
-  fadeIn(current);
-}
-
-A.onended = swapTracks;
-B.onended = swapTracks;
-
-/* Autostart */
-setTimeout(() => {
-  fadeIn(A);
-  btn.classList.add("show");
-}, 400);
-
-/* Button Kontrolle */
-btn.addEventListener("click", () => {
-  if (current.paused) {
-    current.play();
-    btn.textContent = "⏸️";
-  } else {
-    current.pause();
-    btn.textContent = "▶️";
+  /* ---------------------------
+     1) DIREKTLINK-SCHUTZ
+     --------------------------- */
+  // Wenn nicht eingeloggt, zurück zur index (schont auch, falls jemand die Seite direkt aufruft)
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+    // keine weitere Verarbeitung
+    window.location.href = "index.html";
+    return;
   }
-});
 
-/* Stop bei Verlassen der Seite */
-window.addEventListener("beforeunload", () => {
-  A.pause(); B.pause();
-  A.currentTime = 0; B.currentTime = 0;
-});
+  /* ---------------------------
+     Elemente
+     --------------------------- */
+  const A = document.getElementById("trackA");
+  const B = document.getElementById("trackB");
+  const btn = document.getElementById("musicFloating");
+  const goBack = document.getElementById("goBack");
 
-/* ============================================================
-   3) ZURÜCK ZUR HAUPTSEITE
-   ============================================================ */
-document.getElementById("goBack").addEventListener("click", () => {
-  A.pause(); B.pause();
-  window.location.href = "index.html";
-});
+  // Konfiguration
+  const TARGET_VOLUME = 0.45;
+  const FADE_DURATION = 2200; // ms
+  const FADE_STEPS = 40;
 
-  // Prüfen ob Musik abgespielt werden darf
-const mayPlayMusic = localStorage.getItem("musicAllowed") === "yes";
+  // State
+  let current = A;   // start-Track
+  let next = B;
+  let fadeInterval = null;
+  let isFading = false;
+  let autoplaySucceeded = false;
 
-const tracks = [
-    "musik/track1.mp3",
-    "musik/track2.mp3"
-];
+  /* ---------------------------
+     Utility: sanftes Einblenden (Fade-In) eines Audio-Elements
+     gibt Promise zurück, die resolved wenn audio.play() erfolgreich gestartet & gefadet
+     --------------------------- */
+  function fadeInAudio(audio){
+    return new Promise((resolve) => {
+      // cleanup bestehendes fade
+      if (fadeInterval) { clearInterval(fadeInterval); fadeInterval = null; isFading = false; }
 
-let currentTrack = 0;
-const audio = new Audio(tracks[currentTrack]);
-audio.preload = "auto";
+      audio.volume = 0;
+      // Versuchen zu spielen — browsers können play() ablehnen (Autoplay-Policy)
+      const playPromise = audio.play();
 
-// Automatisch nächsten Track starten, wenn einer endet
-audio.addEventListener("ended", function () {
-    currentTrack = (currentTrack + 1) % tracks.length;
-    audio.src = tracks[currentTrack];
-    audio.play().catch(() => {});
-});
-
-// Autoplay der Musik bei Seitenaufruf
-window.addEventListener("load", function () {
-    if (mayPlayMusic) {
-        audio.play().catch(() => {
-            // Falls Browser blockiert, nur Button anzeigen
-            console.log("Autoplay blockiert, Benutzer muss klicken.");
+      // Falls play() ein Promise zurückgibt -> handle
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          // play erfolgreich
+          doFade();
+        }).catch((err) => {
+          // play verweigert (Autoplay blocked)
+          console.warn("Autoplay blockiert (extra.html):", err);
+          showMusicButton(true); // Button zeigen, damit User starten kann
+          resolve(false);
         });
+      } else {
+        // älterer Browser: starte Fade trotzdem
+        doFade();
+      }
+
+      function doFade(){
+        isFading = true;
+        let step = TARGET_VOLUME / FADE_STEPS;
+        let counter = 0;
+        fadeInterval = setInterval(() => {
+          counter++;
+          audio.volume = Math.min(TARGET_VOLUME, audio.volume + step);
+          if (counter >= FADE_STEPS) {
+            clearInterval(fadeInterval);
+            fadeInterval = null;
+            isFading = false;
+            // Markieren, dass Autoplay gelang (falls caller möchte)
+            autoplaySucceeded = true;
+            // Merken: Musik wurde in diesem Browser erlaubt
+            try { localStorage.setItem("musicAllowed", "yes"); } catch(_) {}
+            showMusicButton(true);
+            resolve(true);
+          }
+        }, Math.max(10, Math.round(FADE_DURATION / FADE_STEPS)));
+      }
+    });
+  }
+
+  /* ---------------------------
+     Swap Tracks (wird auf onended ausgeführt)
+     - tauscht current/next und startet fadeIn des neuen current
+     --------------------------- */
+  function swapTracks(){
+    // pause & reset previous (defensive)
+    try { if (!current.paused) current.pause(); } catch(_) {}
+    const old = current;
+    current = next;
+    next = old;
+    // Stelle auf 0, start fadeIn
+    current.currentTime = 0;
+    fadeInAudio(current).catch(()=>{ /* ignore */ });
+  }
+
+  /* ---------------------------
+     UI: show/hide music button
+     --------------------------- */
+  function showMusicButton(show){
+    if (show){
+      btn.classList.add("show");
+      btn.setAttribute('aria-hidden','false');
+    } else {
+      btn.classList.remove("show");
+      btn.setAttribute('aria-hidden','true');
     }
-});
+  }
 
-// Manuelles Starten über Button
-document.getElementById("playBtn").addEventListener("click", function () {
-    audio.play();
-});
-  
+  /* ---------------------------
+     Stop & Reset (wenn Seite verlassen oder zurück)
+     --------------------------- */
+  function stopAll(){
+    try {
+      [A,B].forEach(t => { t.pause(); t.currentTime = 0; });
+    } catch(_) {}
+  }
+
+  /* ---------------------------
+     Event hookup
+     --------------------------- */
+  // Wenn ein Track endet -> swap
+  A.addEventListener('ended', swapTracks);
+  B.addEventListener('ended', swapTracks);
+
+  // Wenn Nutzer klickt auf den Floating-Button -> toggle Pause/Play
+  btn.addEventListener('click', () => {
+    // Wenn gerade pausiert: play current (try/catch play())
+    if (current.paused){
+      const p = current.play();
+      if (p && typeof p.then === 'function'){
+        p.then(() => {
+          btn.textContent = "⏸️";
+        }).catch((err) => {
+          console.warn("Play blockiert beim Klick:", err);
+        });
+      } else {
+        btn.textContent = "⏸️";
+      }
+    } else {
+      current.pause();
+      btn.textContent = "▶️";
+    }
+  });
+
+  // Wenn Nutzer klickt auf "zurück" -> stoppen & zurück zu index
+  goBack.addEventListener('click', (e) => {
+    e.preventDefault();
+    stopAll();
+    // we keep localStorage.isLoggedIn = true so user doesn't need to login again
+    window.location.href = "index.html";
+  });
+
+  // Bei Unload / Navigationsereignis - stoppe Audios
+  window.addEventListener('pagehide', stopAll);
+  window.addEventListener('beforeunload', stopAll);
+
+  /* ---------------------------
+     Autostart-Logik:
+     - wenn localStorage.musicAllowed === 'yes' → versuchen zu starten (user hat zuvor erlaubt)
+     - sonst versuchen, falls browser erlaubt; wenn blockiert → Button sichtbar (Nutzer muss klicken)
+     - Wenn erfolgreich gestartet → btn sichtbar und zeigt Pause (⏸️)
+     --------------------------- */
+  (function tryAutoStart(){
+    const musicAllowed = localStorage.getItem("musicAllowed") === "yes";
+
+    // If musicAllowed set, try to start; otherwise we still try once but will reveal button if blocked
+    fadeInAudio(current).then((ok) => {
+      if (ok){
+        // started and faded in
+        btn.textContent = "⏸️";
+      } else {
+        // autoplay blocked — the fadeInAudio already showed the button
+        btn.textContent = "▶️";
+      }
+    });
+  })();
+
+  /* ---------------------------
+     Small accessibility: if user touches anywhere, and autoplay was blocked,
+     start music on first explicit gesture (and hide button after toggle behaviour is set)
+     --------------------------- */
+  function firstGestureStart(){
+    if (autoplaySucceeded) return;
+    // try to play (user gesture)
+    fadeInAudio(current).then(ok=>{
+      if (ok) btn.textContent = "⏸️";
+      else btn.textContent = "▶️";
+      // remove the one-time listener
+      window.removeEventListener('pointerdown', firstGestureStart);
+      window.removeEventListener('keydown', firstGestureStart);
+    });
+  }
+  window.addEventListener('pointerdown', firstGestureStart, { once:true });
+  window.addEventListener('keydown', firstGestureStart, { once:true });
+
+  /* End of IIFE */
+})();
 </script>
-
 </body>
 </html>
