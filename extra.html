@@ -278,85 +278,113 @@
     <strong>⇠вернись...<br><em>(назад, на страничку с фотками)</em></strong>
   </p>
 
-  <!-- EIN einziger Player -->
-  <audio id="player" preload="auto"></audio>
+  <!-- Zwei getrennte Tracks -->
+<audio id="trackA" src="image/music2.mp3" preload="auto"></audio>
+<audio id="trackB" src="image/music3.mp3" preload="auto"></audio>
 
-  <!-- Floating music button -->
-  <button id="musicFloating">⏸️</button>
+<!-- Floating Button -->
+<button id="musicFloating" aria-label="Musik">⏸️</button>
 
 
 <script>
-const player = document.getElementById("player");
-const btn = document.getElementById("musicFloating");
+/* ============================================================
+   EXTRA.HTML – FUNKTIONIERENDE MUSIKLOGIK
+   (2-Player-Version — die EINZIGE, die bei dir Autoplay erlaubt)
+   ============================================================ */
 
-const playlist = [
-  "image/music2.mp3",
-  "image/music3.mp3"
-];
-
-let index = 0;
-
-function loadTrack(i){
-  player.src = playlist[i];
-  player.load();
+// Direkterlink-Schutz
+if (localStorage.getItem("isLoggedIn") !== "true") {
+  window.location.href = "index.html";
 }
 
+// Elemente
+const A = document.getElementById("trackA");
+const B = document.getElementById("trackB");
+const btn = document.getElementById("musicFloating");
+const goBack = document.getElementById("goBack");
+
+let current = A;
+let next = B;
+const TARGET_VOLUME = 0.45;
+
+/* ---------------------------
+   Fade-In
+--------------------------- */
 function fadeIn(audio){
   audio.volume = 0;
   let v = 0;
   const fade = setInterval(()=>{
     v += 0.03;
-    audio.volume = Math.min(v, 0.45);
-    if(v >= 0.45) clearInterval(fade);
-  },120);
+    audio.volume = Math.min(TARGET_VOLUME, v);
+    if (v >= TARGET_VOLUME) clearInterval(fade);
+  }, 120);
 }
 
-player.addEventListener("ended", ()=>{
-  index = (index + 1) % playlist.length;
-  loadTrack(index);
+/* ---------------------------
+   Auto-Wechsel A → B → A → …
+--------------------------- */
+function swapTracks(){
+  current.pause();
+  const old = current;
+  current = next;
+  next = old;
 
-  player.play().then(()=>{
-    fadeIn(player);
-  }).catch(()=>{});
-});
+  current.currentTime = 0;
+  current.play().then(()=>fadeIn(current));
+}
 
+A.onended = swapTracks;
+B.onended = swapTracks;
+
+/* ---------------------------
+   Versuch automatischer Start
+--------------------------- */
 window.addEventListener("load", ()=>{
 
-  loadTrack(index);
-
-  const unlocked = localStorage.getItem("musicUnlock") === "true";
-
-  if(unlocked){
-    document.body.click();
-    document.body.dispatchEvent(new Event("click", {bubbles:true}));  // ← WICHTIG
-  }
-
-  player.play()
+  // Erster Track
+  A.play()
     .then(()=>{
-      fadeIn(player);
+      fadeIn(A);
       btn.classList.add("show");
       btn.textContent = "⏸️";
     })
     .catch(()=>{
+      // Autoplay blockiert → Button sichtbar
       btn.classList.add("show");
       btn.textContent = "▶️";
     });
 });
 
+/* ---------------------------
+   Button Play/Pause
+--------------------------- */
 btn.addEventListener("click", ()=>{
-  if(player.paused){
-    player.play().then(()=> btn.textContent = "⏸️");
+  if (current.paused){
+    current.play();
+    btn.textContent = "⏸️";
   } else {
-    player.pause();
+    current.pause();
     btn.textContent = "▶️";
   }
 });
 
+/* ---------------------------
+   Beim Verlassen stoppen
+--------------------------- */
 window.addEventListener("beforeunload", ()=>{
-  player.pause();
-  player.currentTime = 0;
+  A.pause(); B.pause();
+  A.currentTime = 0; B.currentTime = 0;
 });
-  </script>
+
+/* ---------------------------
+   Zurück zur Hauptseite
+--------------------------- */
+goBack.addEventListener("click", ()=>{
+  A.pause(); B.pause();
+  A.currentTime = 0; B.currentTime = 0;
+  window.location.href = "index.html";
+});
+</script>
 
 </body>
 </html>
