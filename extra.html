@@ -279,17 +279,13 @@
   </p>
 
   <!-- EIN einziger Player -->
-  <audio id="player" preload="auto" muted></audio>
+  <audio id="player" preload="auto"></audio>
 
   <!-- Floating music button -->
   <button id="musicFloating">⏸️</button>
 
 
 <script>
-/* ============================================================
-   AUTOPLAY FIX — FUNKTIONIERT IMMER BEIM WECHSEL VON index.html
-   ============================================================ */
-
 const player = document.getElementById("player");
 const btn = document.getElementById("musicFloating");
 
@@ -300,30 +296,21 @@ const playlist = [
 
 let index = 0;
 
-/* -----------------------------------
-   TRACK LADEN
------------------------------------ */
 function loadTrack(i){
   player.src = playlist[i];
   player.load();
 }
 
-/* -----------------------------------
-   FADING
------------------------------------ */
 function fadeIn(audio){
   audio.volume = 0;
   let v = 0;
   const fade = setInterval(()=>{
     v += 0.03;
-    audio.volume = Math.min(0.45, v);
+    audio.volume = Math.min(v, 0.45);
     if(v >= 0.45) clearInterval(fade);
   },120);
 }
 
-/* -----------------------------------
-   AUTOMATISCH NÄCHSTER TRACK
------------------------------------ */
 player.addEventListener("ended", ()=>{
   index = (index + 1) % playlist.length;
   loadTrack(index);
@@ -333,43 +320,29 @@ player.addEventListener("ended", ()=>{
   }).catch(()=>{});
 });
 
-/* ============================================================
-   *** WICHTIGER AUTOPLAY-HACK ***
-   Browser akzeptiert Autoplay NUR,
-   wenn kurz vorher echte User-Interaktion stattfand.
-   Lösung: Aus index.html setzen wir:
-   localStorage.musicUnlock = "true"
-   ============================================================ */
-
 window.addEventListener("load", ()=>{
 
   loadTrack(index);
 
-  // Hat index.html den "Autoplay Unlock" gesetzt?
   const unlocked = localStorage.getItem("musicUnlock") === "true";
 
   if(unlocked){
-    // Fake-Interaktion → Autoplay wird erlaubt
     document.body.click();
+    document.body.dispatchEvent(new Event("click", {bubbles:true}));  // ← WICHTIG
   }
 
-  // Jetzt versuchen wir echten Autoplay:
   player.play()
-  .then(()=>{
-    fadeIn(player);
-    btn.classList.add("show");
-    btn.textContent = "⏸️";
-  })
-  .catch(()=>{
-    // Browser blockiert → Button erscheint
-    btn.classList.add("show");
-    btn.textContent = "▶️";
-  });
+    .then(()=>{
+      fadeIn(player);
+      btn.classList.add("show");
+      btn.textContent = "⏸️";
+    })
+    .catch(()=>{
+      btn.classList.add("show");
+      btn.textContent = "▶️";
+    });
 });
 
-/* -----------------------------------
-   PLAY / PAUSE Button
------------------------------------ */
 btn.addEventListener("click", ()=>{
   if(player.paused){
     player.play().then(()=> btn.textContent = "⏸️");
@@ -379,14 +352,11 @@ btn.addEventListener("click", ()=>{
   }
 });
 
-/* -----------------------------------
-   STOP BEI VERLASSEN
------------------------------------ */
 window.addEventListener("beforeunload", ()=>{
   player.pause();
   player.currentTime = 0;
 });
-    </script>
+  </script>
 
 </body>
 </html>
