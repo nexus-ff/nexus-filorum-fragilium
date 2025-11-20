@@ -289,7 +289,6 @@ if (localStorage.getItem("isLoggedIn") !== "true") {
 /* ============================================================
    2) MUSIKSYSTEM EXTRA-SEITE
    ============================================================ */
-
 const A = document.getElementById("trackA");
 const B = document.getElementById("trackB");
 const btn = document.getElementById("musicFloating");
@@ -298,10 +297,13 @@ let current = A;
 let next = B;
 let fadeTimer = null;
 
-/* ---------- sanftes Einblenden ---------- */
+/* ---------------------------
+     Fade-in Funktion
+---------------------------- */
 function fadeIn(audio) {
   audio.volume = 0;
-  audio.play().catch(()=>{});
+  audio.play().catch(() => {});  // Browser-Schutz
+
   let v = 0;
   fadeTimer = setInterval(() => {
     v += 0.02;
@@ -310,7 +312,9 @@ function fadeIn(audio) {
   }, 100);
 }
 
-/* ---------- Wechseln auf den nächsten Track ---------- */
+/* ---------------------------
+    Track-Wechsel (A → B → A…)
+---------------------------- */
 function swapTracks() {
   const old = current;
   current = next;
@@ -319,17 +323,22 @@ function swapTracks() {
   fadeIn(current);
 }
 
-/* Wenn einer endet → automatisch der andere */
 A.onended = swapTracks;
 B.onended = swapTracks;
 
-/* ---------- Autostart ---------- */
-setTimeout(() => {
-  fadeIn(A);
-  btn.classList.add("show");
-}, 400);
+/* ---------------------------
+   Autostart nach 400 ms
+---------------------------- */
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    fadeIn(A);                    // Track A spielt automatisch
+    btn.classList.add("show");    // Button erscheint
+  }, 400);
+});
 
-/* ---------- Play/Pause Button ---------- */
+/* ---------------------------
+   Button (Play/Pause)
+---------------------------- */
 btn.addEventListener("click", () => {
   if (current.paused) {
     current.play();
@@ -340,14 +349,16 @@ btn.addEventListener("click", () => {
   }
 });
 
-/* ---------- Stop bei Verlassen der Seite ---------- */
+/* ---------------------------
+  Stop bei Verlassen der Seite
+---------------------------- */
 window.addEventListener("beforeunload", () => {
   A.pause(); B.pause();
   A.currentTime = 0; B.currentTime = 0;
 });
 
 /* ============================================================
-   3) ZURÜCK ZUR HAUPTSEITE
+   3) ZURÜCK-ZUR-HOME-SEITE
    ============================================================ */
 document.getElementById("goBack").addEventListener("click", () => {
   A.pause(); B.pause();
