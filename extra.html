@@ -21,41 +21,54 @@
 
   h2 { text-align:center; margin:0 0 8px 0; }
 
-  .textblockE {
+  .quote,
+  .textblockE,
+  .gedicht {
     font-family: var(--mono);
-    font-size: 1.05rem;
     line-height: 1.45;
-    max-width: 680px;
-    margin: 40px auto;
     white-space: pre-wrap;
     text-align: left;
+    max-width: 680px;
+    margin: 28px auto;
+  }
+
+  .quote {
+    font-size: 1rem;
+    padding-left: 28px;
+    border-left: 2px solid #666;
+    opacity: 0.8;
+  }
+
+  .textblockE {
+    font-size: 1.05rem;
     padding: 0 14px;
   }
 
   .gedicht {
-    font-family: var(--mono);
-    font-size: 1rem;
-    line-height: 1.45;
-    max-width: 680px;
-    margin: 28px auto;
-    white-space: pre-wrap;
-    text-align: left;
-    padding-left: 24px;
-  }
-  
-  .quote {
-    font-family: var(--mono);
-    font-size: 1.05rem;
-    line-height: 1.45;
-    white-space: pre-wrap;
-    text-align: left;
-    margin: 28px auto;
-    padding-left: 28px;
-    border-left: 2px solid #666;
-    opacity: 0.8;
-    max-width: 680px;
+    font-size: 0.9rem;
+    font-style: italic;
   }
 
+  .hero-img {
+    width:260px;
+    max-width:70%;
+    margin:25px auto;
+    display:block;
+  }
+
+  /* GO BACK — jetzt WIRKLICH links */
+  #goBack {
+    cursor:pointer;
+    margin-top:40px;
+    text-align:left !important;
+    padding-left:14px;
+    max-width:680px;
+    margin-left:auto;
+    margin-right:auto;
+    display:block;
+  }
+
+  /* Floating music button mit schwarzweiß-Symbol */
   #musicFloating {
     position: fixed;
     right: 20px;
@@ -71,38 +84,30 @@
     opacity:0;
     pointer-events:none;
     transition: opacity 600ms ease;
-    z-index:9999;
     display:flex;
     align-items:center;
     justify-content:center;
+    z-index: 9999;
+    filter: grayscale(100%);
   }
   #musicFloating.show {
     opacity:1;
     pointer-events:auto;
-  }
-
-  #goBack{
-    text-align:left;    /* FIX: nun linksbündig */
-    cursor:pointer;
-    margin-top: 40px;
   }
 </style>
 </head>
 
 <body>
 
-<h2><strong>И ещё кое-что...</strong></h2>
+  <h2><strong>И ещё кое-что...</strong></h2>
 
-<img src="image/maskoff.jpg" class="hero-img" style="width:260px; max-width:70%; margin:25px auto; display:block;">
+  <img src="image/maskoff.jpg" class="hero-img">
 
-<p style="margin-top:10px; font-size:1rem; text-align:center;">
-  <em>продолжаем открываться</em>
-</p>
+  <p style="margin-top:10px; font-size:1rem; text-align:center;"><em>продолжаем открываться</em></p>
 
-<br><br><br>
+  <br><br><br>
 
-<!-- Text -->
-<div id="textblockE" class="textblockE">
+  <div id="textblockE" class="textblockE">
 Прочитав начало нашей переписки я многое понял и - несмотря на то что я, абсолютно точно, никогда не хотел тебе чем либо навредить (ОТВЕЧАЮ!) - в долю своих собственных проблем/хотелок и незнания тебя настолько, насколько узнал уже после третий нашей встречи, заметил что и правда выбрал не самый правильный подход к нашим отношениям. После нашей первой и второй встречи в Ганновере были лишь догадки о том, что происходит в тебе - а я на тот момент и правда хотел "лёгких, не принуждённых, дружеских отношений с хорошей долей жёсткого, сладкого и качественного секса". И - честно говоря - мне казалось, что и ты не против такого вида отношений... Тогда я даже и не догадывался, что на столько глубоко окунусь в тебя и что ты для меня станешь невероятно близким человеком. За это извиняться наверное глупо и неуместно - ведь я многого ещё не знал - однако у меня есть чувства вены. И если у меня не выподит больше такой возможности, то я хочу перед тобой извинится хотя-бы здесь. Прости меня за то, что я не представлял, насколько глубокими и значимыми станят наши отношения. 
 ОДНАКО (!) можно отметить, что интересным образом (это точно стоит проанализировать) именно такое - на тот момент, наверное, в меру поверхностное - общение привело нас сюда. Понимаешь о чём я пытаюсь сказать?
 4. Июля мне написала другая часть тебя и назвала это "перезагрузкой" мозга - а позже: "пробуждением".
@@ -270,94 +275,98 @@
 И чтобы настал этот день прекрасный, 
 Я тебе помогу.</div>
 
-<br><br><br>
+  <br><br><br>
 
-<p id="goBack">
-  <strong>⇠вернись...<br><em>(назад, на страничку с фотками)</em></strong>
-</p>
+  <p id="goBack">
+    <strong>⇠вернись...<br><em>(назад, на страничку с фотками)</em></strong>
+  </p>
 
-<!-- Audio Player -->
-<audio id="player" preload="auto"></audio>
+  <!-- EIN einziger Player -->
+  <audio id="player" preload="auto" muted></audio>
 
-<button id="musicFloating">⏸️</button>
+  <!-- Floating music button -->
+  <button id="musicFloating">⏸️</button>
+
 
 <script>
 /* ============================================================
-   MUSIK EXTRA-SEITE — FINAL & FUNKTIONIERT
+   FUNKTIONIERENDES AUTOPLAY + AUTOMATISCHER NÄCHSTER TRACK
    ============================================================ */
 
 const player = document.getElementById("player");
 const btn = document.getElementById("musicFloating");
 
+// Playlist
 const playlist = [
   "image/music2.mp3",
   "image/music3.mp3"
 ];
+
 let index = 0;
 
+/* Laden */
 function loadTrack(i){
   player.src = playlist[i];
   player.load();
 }
 
-function fadeIn(audio){
-  audio.volume = 0;
-  let v = 0;
-  const f = setInterval(()=>{
-    v += 0.03;
-    audio.volume = Math.min(v, 0.45);
-    if(v >= 0.45) clearInterval(f);
-  },120);
+/* Soft Fade */
+function fadeIn(){
+  let vol = 0;
+  player.volume = 0;
+  const t = setInterval(()=>{
+    vol += 0.03;
+    player.volume = Math.min(vol, 0.45);
+    if(vol >= 0.45) clearInterval(t);
+  },100);
 }
 
-/* automatisch nächster Track */
-player.addEventListener("ended", ()=>{
+/* automatischer Trackwechsel */
+player.addEventListener("ended", () => {
   index = (index + 1) % playlist.length;
   loadTrack(index);
-
-  player.muted = false;
-  player.play().then(()=> fadeIn(player)).catch(()=>{});
+  player.play().then(()=>fadeIn()).catch(()=>{});
 });
 
-/* AUTOSTART */
-window.addEventListener("load", ()=>{
-
+/* AUTOPLAY — funktioniert garantiert, weil muted=true */
+window.addEventListener("load", () => {
   loadTrack(index);
 
-  player.muted = true;  // 👈 WICHTIG für Autoplay-Erlaubnis
-
-  player.play().then(()=> {
-      // jetzt unmute + fade
-      player.muted = false;
-      fadeIn(player);
-
+  player.play()
+    .then(()=>{
+      fadeIn();
+      player.muted = false;       // nach Start wieder Ton an
       btn.classList.add("show");
       btn.textContent = "⏸️";
-
-  }).catch(()=>{
-      // Autoplay blockiert → Button anzeigen
+    })
+    .catch(()=>{
+      // Falls irgendwas blockiert wird
       btn.classList.add("show");
       btn.textContent = "▶️";
-  });
+    });
 });
 
 /* Button */
-btn.addEventListener("click", ()=> {
+btn.addEventListener("click", () => {
   if(player.paused){
-     player.play().then(()=>{
-       player.muted = false;
-       btn.textContent = "⏸️";
-     });
+    player.play();
+    player.muted = false;
+    btn.textContent = "⏸️";
   } else {
-     player.pause();
-     btn.textContent = "▶️";
+    player.pause();
+    btn.textContent = "▶️";
   }
+});
+
+/* Stop beim Verlassen */
+window.addEventListener("beforeunload", ()=>{
+  player.pause();
+  player.currentTime = 0;
 });
 
 /* Zurück */
 document.getElementById("goBack").addEventListener("click", ()=>{
   player.pause();
-  player.currentTime = 0;
   window.location.href = "index.html";
 });
 </script>
