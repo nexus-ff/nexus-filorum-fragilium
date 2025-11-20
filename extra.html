@@ -16,10 +16,28 @@
   }
 
   .quote {
-    margin-left: 12%;
-    margin-right: 12%;
-    font-style: italic;
-    opacity: 0.85;
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+
+  text-align: left;      /* ⬅️ nicht mehr zentriert */
+  margin: 28px auto;     
+  padding-left: 28px;    /* ⬅️ Einzug links */
+  border-left: 2px solid #666;  /* ⬅️ subtiler Quote-Balken */
+  opacity: 0.8;
+  max-width: 640px;
+  }
+
+  .textblock {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  line-height: 1.45;
+  max-width: 680px;
+  margin: 40px auto;
+  white-space: pre-wrap;
+  text-align: left;         /* ⬅️ NEU: nicht mehr mittig */
+  padding: 0 14px;          /* ⬅️ saubere linke/rechte Ränder */
   }
 
   #musicFloating {
