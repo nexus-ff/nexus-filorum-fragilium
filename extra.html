@@ -41,8 +41,8 @@
     line-height: 1.45;
     text-align: left;
     margin: 28px auto;
+    white-space: pre-wrap;
     padding-left: 28px;
-    border-left: 2px solid #666;
     opacity: 1;
     max-width: 680px;
   }
@@ -290,97 +290,103 @@
 
   <br><br><br>
 
-  <p id="goBack" class="textblockE">
+  <p id="goBack" align="left justify">
     <left><strong>⇠вернись...<br><em>(назад, на страничку с фотками)</em></strong></left>
   </p>
 
-  <!-- Two tracks which alternate -->
-  <audio id="trackA" src="image/music2.mp3" preload="auto"></audio>
-  <audio id="trackB" src="image/music3.mp3" preload="auto"></audio>
-
+  <!-- track preload -->
+  <audio id="player" preload="auto"></audio>
+  
   <!-- Floating music button (appears when music started or when autoplay blocked) -->
   <button id="musicFloating" aria-label="Musik">⏸️</button>
 
 <script>
 /* ============================================================
-   1) DIREKTLINK-SCHUTZ
-   ============================================================ */
-if (localStorage.getItem("isLoggedIn") !== "true") {
-  window.location.href = "index.html";
-}
-
-/* ============================================================
-   2) MUSIKSYSTEM EXTRA-SEITE (AUTOPLAY + AUTOMATISCHER WECHSEL)
+   MUSIK EXTRA-SEITE — FINAL & FUNKTIONIEREND
    ============================================================ */
 
-const A = document.getElementById("trackA");
-const B = document.getElementById("trackB");
+const player = document.getElementById("player");
 const btn = document.getElementById("musicFloating");
 
-let current = A;
-let next = B;
-let fadeTimer = null;
+// Deine beiden Tracks (richtige Pfade!)
+const playlist = [
+  "image/music2.mp3",
+  "image/music3.mp3"
+];
 
-/* ---------- Fade-In ---------- */
+let index = 0;
+
+/* ------------------------------
+   TRACK LADEN
+------------------------------ */
+function loadTrack(i) {
+  player.src = playlist[i];
+  player.load();
+}
+
+/* ------------------------------
+   FADING
+------------------------------ */
 function fadeIn(audio) {
   audio.volume = 0;
-  audio.play().catch(() => {}); // falls der Browser blockiert
   let v = 0;
-  fadeTimer = setInterval(() => {
-    v += 0.02;
-    audio.volume = Math.min(0.45, v);
-    if (v >= 0.45) clearInterval(fadeTimer);
-  }, 100);
+  const fade = setInterval(() => {
+    v += 0.03;
+    audio.volume = Math.min(v, 0.45);
+    if (v >= 0.45) clearInterval(fade);
+  }, 120);
 }
 
-/* ---------- Track-Wechsel ---------- */
-function swapTracks() {
-  // aktuelles stoppen
-  current.pause();
-  current.currentTime = 0;
+/* ------------------------------
+   NÄCHSTEN TRACK STARTEN
+------------------------------ */
+player.addEventListener("ended", () => {
+  index = (index + 1) % playlist.length;
+  loadTrack(index);
 
-  // swap
-  const old = current;
-  current = next;
-  next = old;
-
-  fadeIn(current);
-}
-
-/* ---------- Events ---------- */
-A.onended = swapTracks;
-B.onended = swapTracks;
-
-/* ---------- Autoplay ---------- */
-window.addEventListener("load", () => {
-  fadeIn(A);               // Track A startet direkt
-  btn.classList.add("show");
+  // automatisches Starten (ohne Button)
+  player.play().then(() => fadeIn(player)).catch(() => {});
 });
 
-/* ---------- Button Play/Pause ---------- */
+/* ------------------------------
+   AUTOSTART BEI SEITENAUFRUF
+------------------------------ */
+window.addEventListener("load", () => {
+  loadTrack(index);
+
+  player.play()
+    .then(() => {
+      fadeIn(player);
+      btn.classList.add("show");
+      btn.textContent = "⏸️";
+    })
+    .catch(() => {
+      // Falls Browser blockiert:
+      btn.classList.add("show");
+      btn.textContent = "▶️";
+    });
+});
+
+/* ------------------------------
+   BUTTON PLAY/PAUSE
+------------------------------ */
 btn.addEventListener("click", () => {
-  if (current.paused) {
-    current.play();
-    btn.textContent = "⏸️";
+  if (player.paused) {
+    player.play().then(() => {
+      btn.textContent = "⏸️";
+    });
   } else {
-    current.pause();
+    player.pause();
     btn.textContent = "▶️";
   }
 });
 
-/* ---------- Stop bei Verlassen ---------- */
+/* ------------------------------
+   STOP BEIM VERLASSEN
+------------------------------ */
 window.addEventListener("beforeunload", () => {
-  A.pause(); B.pause();
-  A.currentTime = 0;
-  B.currentTime = 0;
-});
-
-/* ============================================================
-   3) ZURÜCK ZUR HAUPTSEITE
-   ============================================================ */
-document.getElementById("goBack").addEventListener("click", () => {
-  A.pause(); B.pause();
-  window.location.href = "index.html";
+  player.pause();
+  player.currentTime = 0;
 });
 </script>
 </body>
