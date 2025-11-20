@@ -318,6 +318,41 @@ document.getElementById("goBack").addEventListener("click", () => {
   A.pause(); B.pause();
   window.location.href = "index.html";
 });
+
+  // Prüfen ob Musik abgespielt werden darf
+const mayPlayMusic = localStorage.getItem("musicAllowed") === "yes";
+
+const tracks = [
+    "musik/track1.mp3",
+    "musik/track2.mp3"
+];
+
+let currentTrack = 0;
+const audio = new Audio(tracks[currentTrack]);
+audio.preload = "auto";
+
+// Automatisch nächsten Track starten, wenn einer endet
+audio.addEventListener("ended", function () {
+    currentTrack = (currentTrack + 1) % tracks.length;
+    audio.src = tracks[currentTrack];
+    audio.play().catch(() => {});
+});
+
+// Autoplay der Musik bei Seitenaufruf
+window.addEventListener("load", function () {
+    if (mayPlayMusic) {
+        audio.play().catch(() => {
+            // Falls Browser blockiert, nur Button anzeigen
+            console.log("Autoplay blockiert, Benutzer muss klicken.");
+        });
+    }
+});
+
+// Manuelles Starten über Button
+document.getElementById("playBtn").addEventListener("click", function () {
+    audio.play();
+});
+  
 </script>
 
 </body>
